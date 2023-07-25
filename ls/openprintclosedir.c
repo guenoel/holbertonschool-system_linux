@@ -47,7 +47,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		/**Close the directory*/
 		closedir(dir);
 	} else {
-		printf("%s: Neither a regular file nor a directory", path);
+		perror(prog_name);
 	}
 	return(0);
 }
