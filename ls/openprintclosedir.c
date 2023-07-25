@@ -5,7 +5,7 @@
  * @path: string that represent the path of the directory
  */
 
-int openprintclosedir(char *path, char *prog_name)
+int openprintclosedir(char *path, char *prog_name, int argc)
 {
 	dir = opendir(path);
 	if (dir == NULL)
@@ -13,8 +13,10 @@ int openprintclosedir(char *path, char *prog_name)
 		perror(prog_name);
 		return (1);
 	}
-
-	printf("%s: ", path);
+	if (argc > 2)
+	{
+		printf("%s: ", path);
+	}
 
 	/**Read the directory entries*/
 	while ((entry = readdir(dir)) != NULL)

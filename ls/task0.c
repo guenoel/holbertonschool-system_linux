@@ -14,13 +14,13 @@ int main(int argc, char *argv[])
 
 	if (argc == 1)
 	{
-		openprintclosedir(".", argv[0]);
+		openprintclosedir(".", argv[0], argc);
 	}
 	else
 	{
 		for(i = 1; i < argc; i++ )
 		{
-			openprintclosedir(argv[i], argv[0]);
+			openprintclosedir(argv[i], argv[0], argc);
 		}
 	}
 	return (0);

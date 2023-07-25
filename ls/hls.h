@@ -15,6 +15,6 @@ DIR *dir;
 struct dirent *entry;
 struct stat file_stat;
 
-int openprintclosedir(char *path, char *prog_name);
+int openprintclosedir(char *path, char *prog_name, int argc);
 
 #endif
