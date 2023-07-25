@@ -29,9 +29,6 @@ int main(void)
 		perror("Error opening directory");
 		return (1);
 	}
-	
-	/**Sort linked list
-	cocktail_sort_list(&list);*/
 
 	/**Read the directory entries*/
 	while ((entry = readdir(dir)) != NULL)
