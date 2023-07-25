@@ -29,6 +29,9 @@ int main(void)
 		perror("Error opening directory");
 		return (1);
 	}
+	
+	/**Sort linked list
+	cocktail_sort_list(&list);*/
 
 	/**Read the directory entries*/
 	while ((entry = readdir(dir)) != NULL)
@@ -43,9 +46,10 @@ int main(void)
 		/**Print file/directory name*/
 		if (entry->d_name[0] != '.')
 		{
-		printf("%s\n", entry->d_name);
+		printf("%s", entry->d_name);
 		}
 	}
+	printf("\n");
 
 	/**Close the directory*/
 	closedir(dir);
