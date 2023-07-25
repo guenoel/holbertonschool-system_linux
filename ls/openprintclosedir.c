@@ -17,7 +17,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 		if (argc > 2)
 		{
-			printf("%s\n: ", path);
+			printf("%s: \n", path);
 		}
 		dir = opendir(path);
 		if (dir == NULL)
