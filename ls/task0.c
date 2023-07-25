@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <time.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
+#include "hls.h"
 
 /**
  * main- fonction principale
@@ -16,38 +8,18 @@
  */
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	DIR *dir;
-	struct dirent *entry;
-	struct stat file_stat;
-
-	/**Open the current directory*/
-	dir = opendir(".");
-	if (dir == NULL)
+	if (argc == 1)
 	{
-		perror("Error opening directory");
-		return (1);
+		openprintclosedir(".", argv[0]);
 	}
-
-	/**Read the directory entries*/
-	while ((entry = readdir(dir)) != NULL)
+	else
 	{
-		if (lstat(entry->d_name, &file_stat) == -1)
+		for(int i = 1; i < argc; i++ )
 		{
-			perror("Error getting file status");
-			closedir(dir);
-			return (1);
-		}
-
-		/**Print file/directory name*/
-		if (entry->d_name[0] != '.')
-		{
-		printf("%s ", entry->d_name);
+			openprintclosedir(argv[i], argv[0]);
 		}
 	}
-
-	/**Close the directory*/
-	closedir(dir);
 	return (0);
 }
