@@ -43,7 +43,7 @@ int main(void)
 		/**Print file/directory name*/
 		if (entry->d_name[0] != '.')
 		{
-		printf(" %s", entry->d_name);
+		printf("%s", entry->d_name);
 		}
 	}
 
