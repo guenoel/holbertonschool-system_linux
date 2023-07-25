@@ -10,13 +10,15 @@
 
 int main(int argc, char *argv[])
 {
+	int i;
+
 	if (argc == 1)
 	{
 		openprintclosedir(".", argv[0]);
 	}
 	else
 	{
-		for(int i = 1; i < argc; i++ )
+		for(i = 1; i < argc; i++ )
 		{
 			openprintclosedir(argv[i], argv[0]);
 		}

@@ -7,7 +7,6 @@
 
 int openprintclosedir(char *path, char *prog_name)
 {
-	printf("%s\n", path);
 	dir = opendir(path);
         if (dir == NULL)
         {
