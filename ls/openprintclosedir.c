@@ -10,7 +10,7 @@ int openprintclosedir(char *path, char *prog_name)
 	dir = opendir(path);
 	if (dir == NULL)
 	{
-		fprintf(stderr, "%s: %s\n", prog_name, strerror(errno));
+		perror(prog_name);
 		return (1);
 	}
 
@@ -24,7 +24,7 @@ int openprintclosedir(char *path, char *prog_name)
 
 		if (lstat(full_path, &file_stat) == -1)
 		{
-			fprintf(stderr, "%s: %s: error getting file status\n", prog_name, strerror(errno));
+			perror(prog_name);
 			closedir(dir);
 			return (1);
 		}
