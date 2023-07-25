@@ -18,28 +18,33 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		printf("%s: ", path);
 	}
 
-	/**Read the directory entries*/
-	while ((entry = readdir(dir)) != NULL)
-	{
-		char full_path[1024];
-		sprintf(full_path, "%s/%s", path, entry->d_name);
-
-		if (lstat(full_path, &file_stat) == -1)
+	if (lstat(path, &file_stat) == 0 && S_ISREG(file_stat.st_mode))
+	{	
+		printf("%s ", path);
+	} else {
+		/**Read the directory entries*/
+		while ((entry = readdir(dir)) != NULL)
 		{
-			perror(prog_name);
-			closedir(dir);
-			return (1);
+			char full_path[1024];
+			sprintf(full_path, "%s/%s", path, entry->d_name);
+
+			if (lstat(full_path, &file_stat) == -1)
+			{
+				perror(prog_name);
+				closedir(dir);
+				return (1);
+			}
+
+			/**Print file/directory name*/
+			if (entry->d_name[0] != '.')
+			{
+				printf("%s ", entry->d_name);
+			}
 		}
 
-		/**Print file/directory name*/
-		if (entry->d_name[0] != '.')
-		{
-			printf("%s ", entry->d_name);
-		}
+		/**Close the directory*/
+		closedir(dir);
 	}
-
-	/**Close the directory*/
-	closedir(dir);
 	return(0);
 }
 
