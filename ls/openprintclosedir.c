@@ -48,7 +48,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 		if (argc > 2)
 		{
-			printf("\n");
+			printf("\n\n");
 		}
 		/**Close the directory*/
 		closedir(dir);
