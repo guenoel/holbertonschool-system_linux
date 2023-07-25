@@ -47,7 +47,9 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		/**Close the directory*/
 		closedir(dir);
 	} else {
-		perror(prog_name);
+		fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
+		perror("");
+		return(1);
 	}
 	return(0);
 }
