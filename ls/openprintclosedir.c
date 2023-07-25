@@ -15,16 +15,17 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 	} else if (S_ISDIR(file_stat.st_mode)) {
 		/**Read the directory entries*/
 
-		if (argc > 2)
-		{
-			printf("%s: \n", path);
-		}
 		dir = opendir(path);
 		if (dir == NULL)
 		{
 			fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
 			perror("");
 			return (1);
+		} else {
+			if (argc > 2)
+			{
+				printf("%s: \n", path);
+			}
 		}
 		while ((entry = readdir(dir)) != NULL)
 		{
