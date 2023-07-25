@@ -17,12 +17,12 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 		if (argc > 2)
 		{
-			printf("%s: ", path);
+			printf("%s\n: ", path);
 		}
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			fprintf(stderr, "%s: cannot open directory %s: ", prog_name, path);
+			fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
 			perror("");
 			return (1);
 		}
@@ -33,7 +33,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 			if (lstat(full_path, &file_stat) == -1)
 			{
-				fprintf(stderr, "%s: quelle est cette erreur %s: ", prog_name, path);
+				fprintf(stderr, "%s: Error getting file status %s: ", prog_name, path);
 				perror("");
 				closedir(dir);
 				return (1);
