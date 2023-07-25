@@ -22,7 +22,8 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			perror(prog_name);
+			fprintf(stderr, "%s: cannot open directory %s: ", prog_name, path);
+			perror("");
 			return (1);
 		}
 		while ((entry = readdir(dir)) != NULL)
@@ -32,7 +33,8 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 			if (lstat(full_path, &file_stat) == -1)
 			{
-				perror(prog_name);
+				fprintf(stderr, "%s: quelle est cette erreur %s: ", prog_name, path);
+				perror("");
 				closedir(dir);
 				return (1);
 			}
