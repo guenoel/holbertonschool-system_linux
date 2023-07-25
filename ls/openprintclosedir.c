@@ -10,14 +10,19 @@ int openprintclosedir(char *path, char *prog_name)
 	dir = opendir(path);
         if (dir == NULL)
         {
-		fprintf(stderr, "%s: error with opening directory\n", prog_name);
+		fprintf(stderr, "%s: No such file or directory\n", prog_name);
                 return (1);
         }
+
+	printf("%s: ", path);
 
         /**Read the directory entries*/
         while ((entry = readdir(dir)) != NULL)
         {
-                if (lstat(entry->d_name, &file_stat) == -1)
+		char full_path[1024];
+		sprintf(full_path, "%s/%s", path, entry->d_name);
+
+                if (lstat(full_path, &file_stat) == -1)
                 {
 			fprintf(stderr, "%s: error getting file status\n", prog_name);
                         closedir(dir);
