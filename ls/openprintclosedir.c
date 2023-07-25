@@ -7,22 +7,24 @@
 
 int openprintclosedir(char *path, char *prog_name, int argc)
 {
-	dir = opendir(path);
-	if (dir == NULL)
-	{
-		perror(prog_name);
-		return (1);
-	}
-	if (argc > 2)
-	{
-		printf("%s: ", path);
-	}
+	lstat(path, &file_stat);
 
-	if (lstat(path, &file_stat) == 0 && S_ISREG(file_stat.st_mode))
+	if (S_ISREG(file_stat.st_mode))
 	{	
-		printf("%s ", path);
-	} else {
+		printf("%s\n", path);
+	} else if (S_ISDIR(file_stat.st_mode)) {
 		/**Read the directory entries*/
+
+		if (argc > 2)
+		{
+			printf("%s: ", path);
+		}
+		dir = opendir(path);
+		if (dir == NULL)
+		{
+			perror(prog_name);
+			return (1);
+		}
 		while ((entry = readdir(dir)) != NULL)
 		{
 			char full_path[1024];
@@ -44,6 +46,8 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 
 		/**Close the directory*/
 		closedir(dir);
+	} else {
+		printf("%s: Neither a regular file nor a directory", path);
 	}
 	return(0);
 }
