@@ -18,7 +18,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
+			fprintf(stderr, "%s: open directory %s: ", prog_name, path);
 			perror("");
 			return (1);
 		} else {
