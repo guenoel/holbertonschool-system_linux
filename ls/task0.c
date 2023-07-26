@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (realargc == 1)
+	if (realargc == 0)
 	{
 		openprintclosedir(".", argv[0], realargc, options);
 	}
