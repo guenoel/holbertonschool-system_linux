@@ -18,9 +18,16 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		dir = opendir(path);
 		if (dir == NULL)
 		{
-			fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
-			perror("");
-			return (1);
+			if (errno == EACCES)
+			{
+				fprintf(stderr, "%s: cannot open directory %s: ", prog_name, path);
+				perror("");
+				return (1);	
+			} else {
+				fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
+				perror("");
+				return (1);
+			}
 		} else {
 			if (argc > 2)
 			{
