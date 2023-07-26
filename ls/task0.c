@@ -31,10 +31,13 @@ int main(int argc, char *argv[])
 	{
 		for(i = 1; i < argc; i++ )
 		{
-			openprintclosedir(argv[i], argv[0], realargc, options);
+			if(argv[i][0] != '-')
+			{
+				openprintclosedir(argv[i], argv[0], realargc, options);
+			}
 		}
 	}
-	
+
 	free(options);
 	return (0);
 }
