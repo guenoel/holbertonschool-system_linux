@@ -50,7 +50,7 @@ int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 			/**Print file/directory name*/
 			if (entry->d_name[0] != '.')
 			{
-				printf("%s ", entry->d_name);
+				printf("%s", entry->d_name);
 				if (is_char_in_str(options, '1'))
 				{
 					printf("\n");
