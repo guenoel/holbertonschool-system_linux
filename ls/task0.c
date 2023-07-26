@@ -39,6 +39,12 @@ int main(int argc, char *argv[])
 				printf("%s\n", argv[i]);
 			}
 		}
+
+		if (argc > 1)
+		{
+			printf("\n");
+		}
+
 		for(i = 1; i < argc; i++ )
 		{
 			lstat(argv[i], &file_stat);
