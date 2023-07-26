@@ -16,8 +16,13 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		/**Read the directory entries*/
 
 		dir = opendir(path);
-		if (dir == NULL)
+		if (dir)
 		{
+			if (argc > 2)
+			{
+				printf("%s: \n", path);
+			}
+		} else {	
 			if (errno == EACCES)
 			{
 				fprintf(stderr, "%s: cannot open directory %s: ", prog_name, path);
@@ -27,11 +32,6 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 				fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
 				perror("");
 				return (1);
-			}
-		} else {
-			if (argc > 2)
-			{
-				printf("%s: \n", path);
 			}
 		}
 		while ((entry = readdir(dir)) != NULL)
