@@ -11,32 +11,30 @@
 int main(int argc, char *argv[])
 {
 	int i;
-	char options[1024] = "";
 	int realargc = 0;
+
+	char *options = getoptions(argc, argv);
 
 	for(i = 1; i < argc; i++)
 	{
-		if(argv[i][0] == '-')
+		if(argv[i][0] != '-')
 		{
-			char *opt = argv[i] + 1;
-			char *opts = options;
-			strcat(opts, opt);
-		} else {
 			realargc++;
 		}
 	}
 
 	if (realargc == 1)
 	{
-		openprintclosedir(".", argv[0], realargc);
+		openprintclosedir(".", argv[0], realargc, options);
 	}
 	else
 	{
 		for(i = 1; i < argc; i++ )
 		{
-			openprintclosedir(argv[i], argv[0], realargc);
+			openprintclosedir(argv[i], argv[0], realargc, options);
 		}
 	}
 	
+	free(options);
 	return (0);
 }

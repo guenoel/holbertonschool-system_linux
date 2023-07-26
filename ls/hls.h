@@ -10,11 +10,16 @@
 #include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 DIR *dir;
 struct dirent *entry;
 struct stat file_stat;
 
-int openprintclosedir(char *path, char *prog_name, int argc);
+int openprintclosedir(char *path, char *prog_name, int argc, char *options);
+char *_strcat(char *dest, char *src);
+int _count(char *str);
+char *getoptions(int argc, char *argv[]);
+bool is_char_in_str(const char *str, char c);
 
 #endif

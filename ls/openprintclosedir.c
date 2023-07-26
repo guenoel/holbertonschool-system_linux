@@ -5,7 +5,7 @@
  * @path: string that represent the path of the directory
  */
 
-int openprintclosedir(char *path, char *prog_name, int argc)
+int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 {
 	lstat(path, &file_stat);
 
@@ -18,7 +18,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		dir = opendir(path);
 		if (dir)
 		{
-			if (argc > 2)
+			if (argc > 1)
 			{
 				printf("%s: \n", path);
 			}
@@ -51,10 +51,14 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 			if (entry->d_name[0] != '.')
 			{
 				printf("%s ", entry->d_name);
+				if (is_char_in_str(options, '1'))
+				{
+					printf("\n");
+				}
 			}
 		}
 
-		if (argc > 2)
+		if (argc > 1)
 		{
 			printf("\n\n");
 		}
@@ -65,6 +69,7 @@ int openprintclosedir(char *path, char *prog_name, int argc)
 		perror("");
 		return(1);
 	}
+
 	return(0);
 }
 
