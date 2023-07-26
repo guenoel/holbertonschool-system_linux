@@ -7,12 +7,6 @@
 
 int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 {
-	lstat(path, &file_stat);
-
-	if (S_ISREG(file_stat.st_mode))
-	{	
-		printf("%s\n", path);
-	} else if (S_ISDIR(file_stat.st_mode)) {
 		/**Read the directory entries*/
 
 		dir = opendir(path);
@@ -64,11 +58,6 @@ int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 		}
 		/**Close the directory*/
 		closedir(dir);
-	} else {
-		fprintf(stderr, "%s: cannot access %s: ", prog_name, path);
-		perror("");
-		return(1);
-	}
 
 	return(0);
 }
