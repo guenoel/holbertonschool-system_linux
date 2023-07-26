@@ -20,7 +20,7 @@ int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 		{
 			if (argc > 1)
 			{
-				printf("%s: \n", path);
+				printf("%s:\n", path);
 			}
 		} else {	
 			if (errno == EACCES)
@@ -60,7 +60,7 @@ int openprintclosedir(char *path, char *prog_name, int argc, char *options)
 
 		if (argc > 1)
 		{
-			printf("\n\n");
+			printf("\n");
 		}
 		/**Close the directory*/
 		closedir(dir);
