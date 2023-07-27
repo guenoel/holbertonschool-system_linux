@@ -32,6 +32,7 @@ int print_files(int argc, char *argv[], char *options)
 	}
 	if (file_c > 0 && !is_char_in_str(options, '1'))
 	{
+		printf("aieaieaie");
 		printf("\n");
 	}
 
