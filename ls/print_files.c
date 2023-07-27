@@ -23,13 +23,13 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 			printf(" ");
 		}
 	}
-	if (nb_dirs > 0 || nb_files > 0)
+	if (nb_dirs > 0)
 	{
 		if(!is_char_in_str(options, '1'))
 		{
 			printf("\n");
 		}
-		if (nb_dirs > 0)
+		if (nb_files > 0)
 		{
 			printf("line_a_la_con\n");
 		}
