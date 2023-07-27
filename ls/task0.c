@@ -29,39 +29,14 @@ int main(int argc, char *argv[])
 		openprintclosedir(".", prog_name, realargc, options);
 	}
 	else
-	{	
-		for(i = 1; i < argc; i++ )
-		{
-			lstat(argv[i], &file_stat);
+	{
+		print_files(argc, argv, options);	
 
-			if (S_ISREG(file_stat.st_mode))
-			{
-				printf("%s\n", argv[i]);
-			}
-		}
-
-		if (argc > 1)
+		/*if (realargc > 1)
 		{
 			printf("\n");
-		}
-
-		for(i = 1; i < argc; i++ )
-		{
-			lstat(argv[i], &file_stat);
-
-			if(argv[i][0] != '-')
-			{
-				if (S_ISDIR(file_stat.st_mode))
-				{
-					openprintclosedir(argv[i], prog_name, realargc, options);
-				} else {
-					fprintf(stderr, "%s: cannot access %s: ", prog_name, argv[i]);
-					perror("");
-					return(1);
-				}
-
-			}
-		}
+		}*/
+		print_folders(argc, realargc, argv, options);
 	}
 
 	free(options);
