@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 	int i;
 	int realargc = 0;
 	char *prog_name = argv[0];
+	int file_c = 0;
 
 	char *options = getoptions(argc, argv);
 
@@ -30,8 +31,8 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		print_files(argc, argv, options);
-		print_folders(argc, realargc, argv, options);
+		file_c = print_files(argc, argv, options);
+		print_folders(argc, realargc, argv, options, file_c);
 	}
 	free(options);
 	return (0);
