@@ -5,7 +5,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options, int file_
 	int i;
 	char *prog_name = argv[0];
 
-	for(i = 1; i < argc; ++i)
+	for(i = 1; i < argc; i++)
 	{
 		lstat(argv[i], &file_stat);
 
