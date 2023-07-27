@@ -29,5 +29,6 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 		{
 			printf("\n");
 		}
+		printf("\n");
 	}
 }
