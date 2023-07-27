@@ -13,7 +13,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options, int file_
 		{
 			if (S_ISDIR(file_stat.st_mode))
 			{
-				if (i > 2)
+				if (i > 2 && file_c == 0)
 				{
 					printf("\n");
 				} else {
