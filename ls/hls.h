@@ -16,12 +16,12 @@ DIR *dir;
 struct dirent *entry;
 struct stat file_stat;
 
-int openprintclosedir(char *path, char *prog_name, int argc, char *options);
+int openprintclosedir(char *path, char *prog_name, int nb, char *options);
+void print_files(int nb_files, int nb_dirs, char *files[], char *options);
+int print_dirs(int nb, char *dirs[], char *options, char *prog_name);
 char *_strcat(char *dest, char *src);
 int _count(char *str);
 char *getoptions(int argc, char *argv[]);
 bool is_char_in_str(const char *str, char c);
-int print_files(int argc, char *argv[], char *options);
-int print_folders(int argc, int realargc, char *argv[], char *options, int file_c);
 
 #endif

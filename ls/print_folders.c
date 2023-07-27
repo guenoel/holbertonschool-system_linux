@@ -1,35 +1,22 @@
 #include "hls.h"
 
-int print_folders(int argc, int realargc, char *argv[], char *options, int file_c)
+int print_dirs(int nb, char *dirs[], char *options, char *prog_name)
 {
 	int i;
-	char *prog_name = argv[0];
 
-	for(i = 1; i < argc; i++)
+	for(i = 0; i < nb; i++)
 	{
-		lstat(argv[i], &file_stat);
-
-		if(argv[i][0] != '-')
+		if (i > 0)
 		{
-			if (S_ISDIR(file_stat.st_mode))
+			printf("\n");
+		} else {
+			/*if (nb != 2)
 			{
-				if (i > 2)
-				{
-					printf("i bigger than 2\n");
-				} else {
-					if (file_c != 0)
-					{
-						printf("file_c not 0\n");
-					}
-				}
-				openprintclosedir(argv[i], prog_name, realargc, options);
-				if (file_c == 0) {
-					printf("file_c is 0\n");
-				}
-			} 
+				printf("num2\n");
+			}*/
 		}
+		openprintclosedir(dirs[i], prog_name, nb, options);
 	}
-
 	return(0);
 }
 
