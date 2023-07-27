@@ -42,7 +42,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 		}
 
 		/**Print file/directory name*/
-		if (entry->d_name[0] != '.' && !is_char_in_str(options, 'h'))
+		if (entry->d_name[0] != '.' || is_char_in_str(options, 'h'))
 		{
 			printf("%s", entry->d_name);
 			if (is_char_in_str(options, '1'))
