@@ -53,10 +53,6 @@ int openprintclosedir(char *path, char *prog_name, int realargc, char *options)
 			}
 		}
 	}
-	if (!is_char_in_str(options, '1'))
-	{
-	printf("\n");
-	}
 	/**Close the directory*/
 	closedir(dir);
 

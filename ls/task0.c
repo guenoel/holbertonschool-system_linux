@@ -32,11 +32,15 @@ int main(int argc, char *argv[])
 	{
 		print_files(argc, argv, options);	
 
-		/*if (realargc > 1)
+		if (realargc > 1)
 		{
 			printf("\n");
-		}*/
+		}
 		print_folders(argc, realargc, argv, options);
+	}
+	if (!is_char_in_str(options, '1'))
+	{
+		printf("\n");
 	}
 
 	free(options);
