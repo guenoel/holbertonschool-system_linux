@@ -5,14 +5,14 @@
  * @path: string that represent the path of the directory
  */
 
-int openprintclosedir(char *path, char *prog_name, int nb, char *options)
+int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
 	/**Read the directory entries*/
 
 	dir = opendir(path);
 	if (dir)
 	{
-		if (nb > 1)
+		if (nb > 1 || nb_files > 1)
 		{
 			printf("%s:\n", path);
 		}

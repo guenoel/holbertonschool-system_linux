@@ -16,9 +16,9 @@ DIR *dir;
 struct dirent *entry;
 struct stat file_stat;
 
-int openprintclosedir(char *path, char *prog_name, int nb, char *options);
+int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options);
 void print_files(int nb_files, int nb_dirs, char *files[], char *options);
-int print_dirs(int nb, char *dirs[], char *options, char *prog_name);
+int print_dirs(int nb, int nb_files, char *dirs[], char *options, char *prog_name);
 char *_strcat(char *dest, char *src);
 int _count(char *str);
 char *getoptions(int argc, char *argv[]);

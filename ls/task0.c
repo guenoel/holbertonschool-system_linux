@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
 
 	if (realargc == 0)
 	{
-		openprintclosedir(".", prog_name, realargc, options);
+		openprintclosedir(".", prog_name, realargc, nb_files, options);
 	}
 	else
 	{
 		print_files(nb_files, nb_dirs, files, options);
-		print_dirs(nb_dirs, dirs, options, prog_name);
+		print_dirs(nb_dirs, nb_files, dirs, options, prog_name);
 	}
 	free(options);
 	return (0);
