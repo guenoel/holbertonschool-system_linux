@@ -38,10 +38,10 @@ int main(int argc, char *argv[])
 		}
 		print_folders(argc, realargc, argv, options);
 	}
-	if (!is_char_in_str(options, '1'))
+	/*if (!is_char_in_str(options, '1'))
 	{
 		printf("\n");
-	}
+	}*/
 
 	free(options);
 	return (0);
