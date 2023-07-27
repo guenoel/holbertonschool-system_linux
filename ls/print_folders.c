@@ -13,9 +13,9 @@ int print_folders(int argc, int realargc, char *argv[], char *options)
 		{
 			if (S_ISDIR(file_stat.st_mode))
 			{
-				if (i > 1)
+				if (i > 2)
 				{
-					printf("test\n");
+					printf("\n");
 				}
 				openprintclosedir(argv[i], prog_name, realargc, options);
 			} 
