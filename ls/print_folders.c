@@ -15,7 +15,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options)
 			{
 				if (i > 1)
 				{
-					printf("\n");
+					printf("test\n");
 				}
 				openprintclosedir(argv[i], prog_name, realargc, options);
 			} 

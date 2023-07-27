@@ -24,7 +24,7 @@ int print_files(int argc, char *argv[], char *options)
 			printf("%s", argv[i]);
 			if(is_char_in_str(options, '1'))
 			{
-				printf("aie\n");
+				printf("\n");
 			} else {
 				printf(" ");
 			}
