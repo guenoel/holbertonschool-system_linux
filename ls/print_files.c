@@ -23,7 +23,7 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 			printf(" ");
 		}
 	}
-	if (nb_dirs > 0)
+	if (nb_dirs > 0 || nb_files > 0)
 	{
 		if(!is_char_in_str(options, '1'))
 		{
