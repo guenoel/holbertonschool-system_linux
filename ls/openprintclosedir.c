@@ -53,7 +53,7 @@ int openprintclosedir(char *path, char *prog_name, int realargc, char *options)
 			}
 		}
 	}
-	printf("\n");
+	/*printf("\n");*/
 	/**Close the directory*/
 	closedir(dir);
 

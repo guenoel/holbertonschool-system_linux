@@ -18,7 +18,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options)
 		}
 	}
 
-	printf("\n");
+	/*printf("\n");*/
 
 	return(0);
 }
