@@ -21,7 +21,7 @@ char *_strcat(char *dest, char *src);
 int _count(char *str);
 char *getoptions(int argc, char *argv[]);
 bool is_char_in_str(const char *str, char c);
-void print_files(int argc, char *argv[], char *options);
+int print_files(int argc, char *argv[], char *options);
 int print_folders(int argc, int realargc, char *argv[], char *options);
 
 #endif
