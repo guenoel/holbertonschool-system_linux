@@ -19,5 +19,8 @@ void print_files(int argc, char *argv[], char *options)
 			}
 		}   
 	}
-       /*printf("\n");	*/
+	if (!is_char_in_str(options, '1'))
+	{
+		printf("\n");
+	}
 }
