@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 	{
 		print_files(argc, argv, options);
 		print_folders(argc, realargc, argv, options);
-		printf("truc");
 	}
 	free(options);
 	return (0);
