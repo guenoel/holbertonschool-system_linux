@@ -5,7 +5,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options)
 	int i;
 	char *prog_name = argv[0];
 
-	for(i = 1; i < argc; i++)
+	for(i = 1; i < argc; ++i)
 	{
 		lstat(argv[i], &file_stat);
 
@@ -13,7 +13,7 @@ int print_folders(int argc, int realargc, char *argv[], char *options)
 		{
 			if (S_ISDIR(file_stat.st_mode))
 			{
-				if (i > 2)
+				if (i > 1)
 				{
 					printf("\n");
 				}
