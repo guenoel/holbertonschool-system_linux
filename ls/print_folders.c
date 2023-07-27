@@ -15,16 +15,16 @@ int print_folders(int argc, int realargc, char *argv[], char *options, int file_
 			{
 				if (i > 2)
 				{
-					printf("\n");
+					printf("i bigger than 2\n");
 				} else {
 					if (file_c != 0)
 					{
-						printf("\n");
+						printf("file_c not 0\n");
 					}
 				}
 				openprintclosedir(argv[i], prog_name, realargc, options);
 				if (file_c == 0) {
-					printf("\n");
+					printf("file_c is 0\n");
 				}
 			} 
 		}
