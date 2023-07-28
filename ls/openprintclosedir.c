@@ -8,10 +8,10 @@
 int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
 
-	char *h_files[1024];
-	char *files[1024];
-	int hp;
-	int p;
+	char *h_files[1024] = {NULL};
+	char *files[1024] = {NULL};
+	int hp = 0;
+	int p = 0;
 
 	/**Read the directory entries*/
 
@@ -35,6 +35,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 		}
 	}
 
+	/*store files of directory in two differents arrays: hidden and not hidden*/
 	while ((entry = readdir(dir)) != NULL)
 	{
 		char full_path[1024];
@@ -49,7 +50,6 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			return (1);
 		}
 
-		/*TODO verifier l incrementation de la linked list et le storage en array respectif*/
 		if (entry->d_name[0] == '.')
 		{
 			h_files[hp] = entry->d_name;
@@ -67,7 +67,6 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 		for(i = 0; i < hp; i++)
 		{
-			printf("ih: %d\n", i);
 			printf("%s", h_files[i]);
 			if (is_char_in_str(options, '1'))
 			{
@@ -82,7 +81,6 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 	for(j = 0; j < p; j++)
 	{
-		printf("j: %d\n", j);
 		printf("%s", files[j]);
 		if (is_char_in_str(options, '1'))
 		{
