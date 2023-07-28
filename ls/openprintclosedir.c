@@ -12,6 +12,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	char *files[1024] = {NULL};
 	int hp = 0;
 	int p = 0;
+	int j = 0;
 
 	/**Read the directory entries*/
 
@@ -76,8 +77,6 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			}
 		}
 	}
-
-	int j = 0;
 
 	for(j = 0; j < p; j++)
 	{
