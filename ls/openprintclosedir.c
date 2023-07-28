@@ -7,6 +7,12 @@
 
 int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
+
+	char *h_files[1024];
+	char *files[1024];
+	int hp;
+	int p;
+
 	/**Read the directory entries*/
 
 	dir = opendir(path);
@@ -28,9 +34,11 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			return (1);
 		}
 	}
+
 	while ((entry = readdir(dir)) != NULL)
 	{
 		char full_path[1024];
+
 		sprintf(full_path, "%s/%s", path, entry->d_name);
 
 		if (lstat(full_path, &file_stat) == -1)
@@ -41,16 +49,46 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			return (1);
 		}
 
-		/**Print file/directory name*/
-		if (entry->d_name[0] != '.' || is_char_in_str(options, 'h'))
+		/*TODO verifier l incrementation de la linked list et le storage en array respectif*/
+		if (entry->d_name[0] == '.')
 		{
-			printf("%s", entry->d_name);
+			h_files[hp] = entry->d_name;
+			hp++;
+		} else {
+			files[p] = entry->d_name;
+			p++;
+		}
+	}
+
+	/**Print file/directory name*/
+	if (is_char_in_str(options, 'h'))
+	{
+		int i = 0;
+
+		for(i = 0; i < hp; i++)
+		{
+			printf("ih: %d\n", i);
+			printf("%s", h_files[i]);
 			if (is_char_in_str(options, '1'))
 			{
 				printf("\n");
 			} else {
 				printf(" ");
 			}
+		}
+	}
+
+	int j = 0;
+
+	for(j = 0; j < p; j++)
+	{
+		printf("j: %d\n", j);
+		printf("%s", files[j]);
+		if (is_char_in_str(options, '1'))
+		{
+			printf("\n");
+		} else {
+			printf(" ");
 		}
 	}
 	if (!is_char_in_str(options, '1'))
