@@ -8,7 +8,7 @@ int print_dirs(int nb, int nb_files, char *dirs[], char *options, char *prog_nam
 	{
 		if (i > 0)
 		{
-			printf("num6\n");
+			printf("\n");
 		}
 		openprintclosedir(dirs[i], prog_name, nb, nb_files, options);
 	}
