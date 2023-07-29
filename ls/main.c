@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
 	char *dirs[1024] = {NULL};
 	int nb_files = 0;
 	int nb_dirs = 0;
-	struct stat file_stat[1024];
-	struct stat files_stats[1024];
+	struct stat file_stat[1024] = {0};
+	struct stat files_stats[1024] = {0};
 
 	char *options = getoptions(argc, argv);
 
