@@ -18,7 +18,7 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 		printf("%s", files[i]);
 		if(is_char_in_str(options, '1'))
 		{
-			printf("\n");
+			printf("num3\n");
 		} else {
 			printf(" ");
 		}
@@ -27,11 +27,11 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 	{
 		if(!is_char_in_str(options, '1'))
 		{
-			printf("\n");
+			printf("num4\n");
 		}
 		if (nb_files > 0)
 		{
-			printf("\n");
+			printf("num5\n");
 		}
 	}
 }
