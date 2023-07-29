@@ -31,7 +31,7 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 		}
 		if (nb_files > 0)
 		{
-			printf("\n");
+			printf("\n\n");
 		}
 	}
 }
