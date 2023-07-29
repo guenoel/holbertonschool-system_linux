@@ -62,7 +62,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	}
 
 	/**Print file/directory name*/
-	if (is_char_in_str(options, 'h'))
+	if (is_char_in_str(options, 'a'))
 	{
 		int i = 0;
 
