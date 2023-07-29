@@ -92,7 +92,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 	print_files(p, files, files_stats, options);
 
-	if (!is_char_in_str(options, '1') || is_char_in_str(options, 'l'))
+	if (!is_char_in_str(options, '1') && !is_char_in_str(options, 'l'))
 	{
 		printf("in_open-close_dir\n");
 	}
