@@ -28,5 +28,6 @@ char *getoptions(int argc, char *argv[]);
 bool is_char_in_str(const char *str, char c);
 const char *permissions_string(mode_t mode);
 char *format_date(char * datetime);
+void init_struct_stat(struct stat file_stat[1024]);
 
 #endif

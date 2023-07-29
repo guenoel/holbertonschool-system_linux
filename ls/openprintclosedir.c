@@ -7,16 +7,18 @@
 
 int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
-	struct stat file_stat[1024] = {0};
+	struct stat file_stat[1024];
 	char *dots[1024] = {NULL};
 	char *h_files[1024] = {NULL};
 	char *files[1024] = {NULL};
-	struct stat dots_stats[1024] = {0};
-	struct stat h_files_stats[1024] = {0};
-	struct stat files_stats[1024] = {0};
+	struct stat dots_stats[1024];
+	struct stat h_files_stats[1024];
+	struct stat files_stats[1024];
 	int dp = 0;
 	int hp = 0;
 	int p = 0;
+
+	init_struct_stat(file_stat);
 
 	/**Read the directory entries*/
 
