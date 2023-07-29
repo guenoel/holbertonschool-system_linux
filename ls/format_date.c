@@ -10,7 +10,7 @@
 char *format_date(char *datetime)
 {
 	int p = 4;
-	int i;
+	int i = 0;
 
 	char *formatted_date = (char *)malloc(13 * sizeof(char));
 	if (formatted_date == NULL) {

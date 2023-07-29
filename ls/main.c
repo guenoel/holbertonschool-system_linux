@@ -10,11 +10,11 @@
 
 int main(int argc, char *argv[])
 {
-	int i;
+	int i = 0;
 	int realargc = 0;
 	char *prog_name = argv[0];
-	char *files[1024];
-	char *dirs[1024];
+	char *files[1024] = {NULL};
+	char *dirs[1024] = {NULL};
 	int nb_files = 0;
 	int nb_dirs = 0;
 	struct stat file_stat[1024];
