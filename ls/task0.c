@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
 			{
 				fprintf(stderr, "%s: cannot access %s: ", prog_name, argv[i]);
                         	perror("");
+				free(options);
                         	return (1);
 			}
 			realargc++;
