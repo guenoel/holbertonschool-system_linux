@@ -19,7 +19,6 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	dir = opendir(path);
 	if (dir)
 	{
-		printf("test");
 		if (nb > 1 || nb_files > 1)
 		{
 			printf("%s:\n", path);

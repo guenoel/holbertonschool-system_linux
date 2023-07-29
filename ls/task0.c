@@ -28,11 +28,13 @@ int main(int argc, char *argv[])
 		{
 			if (S_ISREG(file_stat.st_mode))
 			{
+				printf("fichier");
 				files[nb_files] = argv[i];
 				nb_files++;
 			}
 			if (S_ISDIR(file_stat.st_mode))
 			{
+				printf("directo");
 				dirs[nb_dirs] = argv[i];
 				nb_dirs++;
 			}
