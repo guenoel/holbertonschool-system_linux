@@ -20,7 +20,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 	init_struct_stat(file_stat);
 	init_struct_stat(dots_stats);
-	init_struct_stat(h_file_stats);
+	init_struct_stat(h_files_stats);
 	init_struct_stat(files_stats);
 
 	/**Read the directory entries*/
