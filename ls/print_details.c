@@ -11,7 +11,6 @@ void print_details(struct stat stats)
 {
 	char *formatted_date = format_date(ctime(&stats.st_mtime));
 
-	/*-4lu for links ?*/
 	printf("%s %lu %d %d %4ld %s ", permissions_string(stats.st_mode), stats.st_nlink, stats.st_uid, stats.st_gid, stats.st_size, formatted_date);
 
 	free(formatted_date);

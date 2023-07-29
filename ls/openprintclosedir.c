@@ -19,6 +19,9 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	int p = 0;
 
 	init_struct_stat(file_stat);
+	init_struct_stat(dots_stats);
+	init_struct_stat(h_file_stats);
+	init_struct_stat(files_stats);
 
 	/**Read the directory entries*/
 

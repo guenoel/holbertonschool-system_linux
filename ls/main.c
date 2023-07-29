@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 	char *options = getoptions(argc, argv);
 
 	init_struct_stat(file_stat);
+	init_struct_stat(files_stats);
 
 	for(i = 1; i < argc; i++)
 	{
