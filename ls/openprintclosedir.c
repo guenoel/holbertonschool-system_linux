@@ -88,10 +88,10 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			printf(" ");
 		}
 	}
-	/*if (!is_char_in_str(options, '1'))
+	if(!is_char_in_str(options, '1') && !is_char_in_str(options, 'a'))
 	{
 		printf("\n");
-	}*/
+	}
 
 	/**Close the directory*/
 	closedir(dir);
