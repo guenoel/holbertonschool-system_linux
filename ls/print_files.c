@@ -20,7 +20,7 @@ void print_files(int nb_files, char *files[], struct stat file_stats[], char *op
 			print_details(file_stats[i]);
 		}
 		printf("%s", files[i]);
-		if(is_char_in_str(options, '1'))
+		if(is_char_in_str(options, '1') || is_char_in_str(options, 'l'))
 		{
 			printf("\n");
 		} else {
