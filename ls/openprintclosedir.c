@@ -8,8 +8,10 @@
 int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
 
+	char *dots[1024] = {NULL};
 	char *h_files[1024] = {NULL};
 	char *files[1024] = {NULL};
+	int dp = 0;
 	int hp = 0;
 	int p = 0;
 	int j = 0;
@@ -53,8 +55,11 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 		if (entry->d_name[0] == '.')
 		{
-			if (is_char_in_str(options, 'A') && (_strcmp(entry->d_name, ".") != 0 || _strcmp(entry->d_name, "..") != 0))
+			if (_strcmp(entry->d_name, ".") == 0 || _strcmp(entry->d_name, "..") == 0)
 			{
+				dots[dp] = entry->d_name;
+				dp++;
+			} else {
 				h_files[hp] = entry->d_name;
 				hp++;
 			}
@@ -68,7 +73,19 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	if (is_char_in_str(options, 'a') || is_char_in_str(options, 'A'))
 	{
 		int i = 0;
-
+		if (!is_char_in_str(options, 'A'))
+		{
+			for(i = 0; i < dp; i++)
+			{
+				printf("%s", dots[i]);
+				if (is_char_in_str(options, '1'))
+				{
+					printf("\n");
+				} else {
+					printf(" ");
+				}
+			}
+		}
 		for(i = 0; i < hp; i++)
 		{
 			printf("%s", h_files[i]);
