@@ -29,9 +29,13 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 		{
 			printf("\n");
 		}
+		if (nb_files > 0 && is_char_in_str(options, 'a'))
+		{
+			printf("\n");
+		}
 		if (nb_files > 0)
 		{
-			printf("\n\n");
+			printf("\n");
 		}
 	}
 }
