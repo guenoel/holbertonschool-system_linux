@@ -29,7 +29,7 @@ void print_files(int nb_files, int nb_dirs, char *files[], char *options)
 		{
 			printf("num4\n");
 		}
-		if (nb_files > 0)
+		if (nb_files > 0 && !is_char_in_str(options, 'a'))
 		{
 			printf("num5\n");
 		}
