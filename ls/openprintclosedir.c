@@ -7,14 +7,16 @@
 
 int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *options)
 {
-
+	struct stat file_stat[1024];
 	char *dots[1024] = {NULL};
 	char *h_files[1024] = {NULL};
 	char *files[1024] = {NULL};
+	struct stat dots_stats[1024];
+	struct stat h_files_stats[1024];
+	struct stat files_stats[1024];
 	int dp = 0;
 	int hp = 0;
 	int p = 0;
-	int j = 0;
 
 	/**Read the directory entries*/
 
@@ -42,10 +44,11 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	while ((entry = readdir(dir)) != NULL)
 	{
 		char full_path[1024];
+		int i = 0;
 
 		sprintf(full_path, "%s/%s", path, entry->d_name);
 
-		if (lstat(full_path, &file_stat) == -1)
+		if (lstat(full_path, &file_stat[i]) == -1)
 		{
 			fprintf(stderr, "%s: Error getting file status %s: ", prog_name, path);
 			perror("");
@@ -58,57 +61,38 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			if (_strcmp(entry->d_name, ".") == 0 || _strcmp(entry->d_name, "..") == 0)
 			{
 				dots[dp] = entry->d_name;
+				/*_strcpy(file_stat[i].filename, dots[dp]);*/
+				dots_stats[dp] = file_stat[i];
 				dp++;
 			} else {
 				h_files[hp] = entry->d_name;
+				/*_strcpy(file_stat[i].filename, h_files[hp]);*/
+				h_files_stats[hp] = file_stat[i];
 				hp++;
 			}
 		} else {
 			files[p] = entry->d_name;
+			/*_strcpy(file_stat[i].filename, files[p]);*/
+			files_stats[p] = file_stat[i];
 			p++;
 		}
+		i++;
 	}
 
 	/**Print file/directory name*/
 	if (is_char_in_str(options, 'a') || is_char_in_str(options, 'A'))
 	{
-		int i = 0;
 		if (!is_char_in_str(options, 'A'))
 		{
-			for(i = 0; i < dp; i++)
-			{
-				printf("%s", dots[i]);
-				if (is_char_in_str(options, '1'))
-				{
-					printf("\n");
-				} else {
-					printf(" ");
-				}
-			}
+			print_files(dp, dots, dots_stats, options);
 		}
-		for(i = 0; i < hp; i++)
-		{
-			printf("%s", h_files[i]);
-			if (is_char_in_str(options, '1'))
-			{
-				printf("\n");
-			} else {
-				printf(" ");
-			}
-		}
+
+		print_files(hp, h_files, h_files_stats, options);
 	}
 
-	for(j = 0; j < p; j++)
-	{
-		printf("%s", files[j]);
-		if (is_char_in_str(options, '1'))
-		{
-			printf("\n");
-		} else {
-			printf(" ");
-		}
-	}
-	if(!is_char_in_str(options, '1'))
+	print_files(p, files, files_stats, options);
+
+	if (!is_char_in_str(options, '1'))
 	{
 		printf("\n");
 	}
