@@ -17,7 +17,7 @@ char *format_date(char *datetime)
 		perror("Memory allocation error");
 		exit(1);
 	}
-	for (@i = 0; i < 12; i++)
+	for (i = 0; i < 12; i++)
 	{
 		formatted_date[i] = datetime[p++];
 	}
