@@ -80,7 +80,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 				printf("%s", dots[i]);
 				if (is_char_in_str(options, '1'))
 				{
-					printf("num1\n");
+					printf("\n");
 				} else {
 					printf(" ");
 				}
@@ -91,7 +91,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 			printf("%s", h_files[i]);
 			if (is_char_in_str(options, '1'))
 			{
-				printf("num2\n");
+				printf("\n");
 			} else {
 				printf(" ");
 			}
@@ -103,14 +103,14 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 		printf("%s", files[j]);
 		if (is_char_in_str(options, '1'))
 		{
-			printf("num3\n");
+			printf("\n");
 		} else {
 			printf(" ");
 		}
 	}
 	if(!is_char_in_str(options, '1'))
 	{
-		printf("num4\n");
+		printf("\n");
 	}
 
 	/**Close the directory*/
