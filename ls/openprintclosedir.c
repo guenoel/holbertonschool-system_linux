@@ -94,7 +94,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 
 	if (!is_char_in_str(options, '1') && !is_char_in_str(options, 'l'))
 	{
-		printf("in_open-close_dir\n");
+		printf("\n");
 	}
 
 	/**Close the directory*/
