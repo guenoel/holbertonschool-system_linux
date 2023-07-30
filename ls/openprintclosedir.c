@@ -85,17 +85,21 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	}
 
 	/**Print file/directory name*/
-	if (is_char_in_str(options, 'a') || is_char_in_str(options, 'A'))
+	if (is_char_in_str(options, 'a') && !is_char_in_str(options, 'A'))
 	{
 		if (is_char_in_str(options, 'a' ))
 		{
 			print_files(dp, dots, dots_stats, options);
 		}
-
-		print_files(hp, h_files, h_files_stats, options);
 	}
 
 	print_files(p, files, files_stats, options);
+
+	if (is_char_in_str(options, 'a') || is_char_in_str(options, 'A'))
+	{
+		print_files(hp, h_files, h_files_stats, options);
+	}
+
 
 	if (!is_char_in_str(options, '1') && !is_char_in_str(options, 'l'))
 	{
