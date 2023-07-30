@@ -87,7 +87,7 @@ int openprintclosedir(char *path, char *prog_name, int nb, int nb_files, char *o
 	/**Print file/directory name*/
 	if (is_char_in_str(options, 'a') || is_char_in_str(options, 'A'))
 	{
-		if (!is_char_in_str(options, 'A'))
+		if (is_char_in_str(options, 'a' ))
 		{
 			print_files(dp, dots, dots_stats, options);
 		}
