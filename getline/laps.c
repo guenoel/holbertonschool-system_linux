@@ -25,13 +25,91 @@ void race_state(int *id, size_t size)
         update_laps(id[i]);
     }
 
-    printf("Race state:");
+    printf("Race state:\n");
     /*init current to the start of the list*/
     current = head;
     while(current->next != NULL)
     {
-        printf("Car %d [%d laps]", current->id, current->laps);
+        printf("Car %d [%d laps]\n", current->id, current->laps);
         current = current->next;
     }
+}
 
+/**
+* update_laps - update laps and call create node if not found
+* @id: id of the car
+*/
+
+void update_laps(int id)
+{
+    /*init current to start of the list and found var*/
+	car_t *current = head;
+	bool found = false;
+
+	while (current != NULL)
+	{
+		if (current->id == id)
+		{
+            /*add a lap*/
+			current->laps++;
+            /*flag to true*/
+			found = true;
+            /*we stop browsing in the list*/
+			break;
+		}
+		current = current->next;
+	}
+
+    /*if id not found: create a new node*/
+	if (!found)
+	{
+		add_new_node(id);
+	}
+}
+
+void add_new_node(int id)
+{
+    /*create and fill new node (except next var)*/
+    car_t *new = malloc(sizeof(car_t));
+		if (new == NULL)
+		{
+			fprintf(stderr, "Memory allocation error\n");
+			exit(EXIT_FAILURE);
+		}
+	new->id = id;
+	new->laps = 0;
+
+    /*If list haven't any node or id of first node is bigger that the id*/
+    if (head == NULL || head->id > id)
+	{
+        /*it will be NULL if list is empty*/
+		new->next = head;
+        /*new car is on top of the list*/
+		head = new;
+	}
+	else
+	{
+        /*init current var to start of the list*/
+        car_t *current = head;
+        /*find right position in the list*/
+		while (current->next != NULL && current->next->id <= id)
+		{
+			current = current->next;
+		}
+        /*init next var after new*/
+		new->next = current->next;
+        /*init next var before new*/
+		current->next = new;
+    }
+}
+
+void free_ll(void)
+{
+	while (head != NULL)
+    {	
+        /*head variable is always the head until the list doesn't exist anymore*/
+		car_t *temp = head;
+		head = head->next;
+		free(temp);
+	}
 }

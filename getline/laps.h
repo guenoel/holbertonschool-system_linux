@@ -20,9 +20,9 @@ typedef struct car {
     struct car *next;
 } car_t;
 
+void race_state(int *id, size_t size);
 void update_laps(int id);
 void add_new_node(int id);
 void free_ll(void);
-void race_state(int *id, size_t size);
 
 #endif
