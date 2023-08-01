@@ -28,7 +28,7 @@ void race_state(int *id, size_t size)
     printf("Race state:\n");
     /*init current to the start of the list*/
     current = head;
-    while(current->next != NULL)
+    while(current != NULL)
     {
         printf("Car %d [%d laps]\n", current->id, current->laps);
         current = current->next;
@@ -64,6 +64,7 @@ void update_laps(int id)
 	if (!found)
 	{
 		add_new_node(id);
+        printf("Car %d joined the race\n", id);
 	}
 }
 
