@@ -8,7 +8,8 @@
 
 static car_t *head;
 
-void race_state(int *id, size_t size) {
+void race_state(int *id, size_t size)
+{
 size_t i = 0;
 car_t *current = NULL;
 
@@ -27,7 +28,7 @@ for (i = 0; i < size; i++)
 printf("Race state:\n");
 /*init current to the start of the list*/
 current = head;
-while(current != NULL)
+while (current != NULL)
 {
 	printf("Car %d [%d laps]\n", current->id, current->laps);
 	current = current->next;
@@ -48,7 +49,7 @@ void update_laps(int id)
 	while (current != NULL)
 	{
 		if (current->id == id)
-		{	
+		{
 			/*add a lap*/
 			current->laps++;
 			/*flag to true*/
@@ -108,6 +109,7 @@ void free_ll(void)
 	while (head != NULL) {	
 		/*head variable is always the head until the list doesn't exist anymore*/
 		car_t *temp = head;
+
 		head = head->next;
 		free(temp);
 	}
