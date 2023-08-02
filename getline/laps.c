@@ -71,22 +71,23 @@ void update_laps(int id)
 void add_new_node(int id)
 {
 	/*create and fill new node (except next var)*/
-	car_t *new = malloc(sizeof(car_t));
-		if (new == NULL)
+	car_t *new_node = (car_t*)malloc(sizeof(car_t));
+
+		if (new_node == NULL)
 		{
 			fprintf(stderr, "Memory allocation error\n");
 			exit(EXIT_FAILURE);
 		}
-	new->id = id;
-	new->laps = 0;
+	new_node->id = id;
+	new_node->laps = 0;
 
 	/*If list haven't any node or id of first node is bigger that the id*/
 	if (head == NULL || head->id > id)
 	{
 		/*it will be NULL if list is empty*/
-		new->next = head;
-		/*new car is on top of the list*/
-		head = new;
+		new_node->next = head;
+		/*new_node car is on top of the list*/
+		head = new_node;
 	}
 	else
 	{
@@ -97,20 +98,20 @@ void add_new_node(int id)
 		{
 			current = current->next;
 		}
-		/*init next var after new*/
-		new->next = current->next;
-		/*init next var before new*/
-		current->next = new;
+		/*init next var after new_node*/
+		new_node->next = current->next;
+		/*init next var before new_node*/
+		current->next = new_node;
 	}
 }
 
 void free_ll(void)
 {
-	while (head != NULL) {	
-		/*head variable is always the head until the list doesn't exist anymore*/
-		car_t *temp = head;
+while (head != NULL) {
+	/*head variable is always the head until the list doesn't exist anymore*/
+	car_t *temp = head;
 
-		head = head->next;
-		free(temp);
-	}
+	head = head->next;
+	free(temp);
+}
 }
