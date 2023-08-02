@@ -1,3 +1,5 @@
+/*exercice to manage static variable from Holberton School*/
+
 #ifndef SORT_H
 #define SORT_H
 
@@ -14,8 +16,12 @@
 #include <stdbool.h>
 
 /**
-* define struct and typedef car_t
+* car - define struct and typedef car_t
+*@id: id of car
+*@laps: numbers of laps
+*@next: address of next car in the list
 */
+
 typedef struct car
 {
 int id;

@@ -1,12 +1,12 @@
 #include "laps.h"
 
+static car_t *head;
+
 /**
 * race_state - function getline
 * @id: pointer to id of car in the array
 * @size: size of array
 */
-
-static car_t *head;
 
 void race_state(int *id, size_t size)
 {
