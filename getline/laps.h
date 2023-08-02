@@ -13,7 +13,9 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-/*define struct and typedef car_t*/
+/**
+* define struct and typedef car_t
+*/
 typedef struct car
 {
 int id;

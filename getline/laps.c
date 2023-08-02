@@ -68,6 +68,11 @@ void update_laps(int id)
 	}
 }
 
+/**
+* add_new_node - create initialize and place node in the linked list
+*@id: id of the car
+*/
+
 void add_new_node(int id)
 {
 	/*create and fill new node (except next var)*/
@@ -104,6 +109,10 @@ void add_new_node(int id)
 		current->next = new_node;
 	}
 }
+
+/**
+* free_ll - free the linked list
+*/
 
 void free_ll(void)
 {
