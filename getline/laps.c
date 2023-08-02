@@ -71,7 +71,7 @@ void update_laps(int id)
 void add_new_node(int id)
 {
 	/*create and fill new node (except next var)*/
-	car_t *new_node = (car_t*)malloc(sizeof(car_t));
+	car_t *new_node = (car_t *)malloc(sizeof(car_t));
 
 		if (new_node == NULL)
 		{
@@ -107,7 +107,8 @@ void add_new_node(int id)
 
 void free_ll(void)
 {
-while (head != NULL) {
+while (head != NULL)
+{
 	/*head variable is always the head until the list doesn't exist anymore*/
 	car_t *temp = head;
 

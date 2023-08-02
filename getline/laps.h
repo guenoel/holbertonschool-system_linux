@@ -15,9 +15,9 @@
 
 /*define struct and typedef car_t*/
 typedef struct car {
-    int id;
-    int laps;
-    struct car *next;
+int id;
+int laps;
+struct car *next;
 } car_t;
 
 void race_state(int *id, size_t size);
