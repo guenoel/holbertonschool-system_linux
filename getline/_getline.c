@@ -10,13 +10,13 @@ char *_getline(const int fd)
 
 	read_bytes = read(fd, buffer, READ_SIZE);
 
-	// End of file 
+	/* End of file */ 
 	if (read_bytes == 0)
 	{
 		free(buffer);
 		return (NULL);
 	}
-	// If there is an error
+	/* If there is an error */
 	else if(read_bytes == -1)
 	{
 		printf("ERROR while readning the line\n");
