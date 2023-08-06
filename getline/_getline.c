@@ -10,13 +10,14 @@ char *_getline(const int fd)
 {
 	int read_bytes = 0;
 	int i = 0;
+	int j = 0;
 	store_t *current = NULL;
 	static store_t *first_line_storage;
 	char *line = NULL;
 	static int size;
 	store_t *tmp1 = NULL;
 	store_t *tmp2 = NULL;
-	char *buffer = (char *) malloc(sizeof(char) * READ_SIZE);
+	char *buffer = (char *) calloc(READ_SIZE, sizeof(char));
 	char *print_line;
 
 	if (buffer == NULL)
@@ -36,13 +37,15 @@ char *_getline(const int fd)
 		/* End of file */
 		if (read_bytes == 0 && first_line_storage->size == 0)
 		{
+			free_node(first_line_storage);
 			free(buffer);
 			return (NULL);
 		}
 		/* If there is an error */
 		if (read_bytes == -1)
 		{
-			/*printf("ERROR while reading the line\n");*/
+			free_node(first_line_storage);
+			free(buffer);
 			return (NULL);
 		}
 
@@ -63,6 +66,10 @@ char *_getline(const int fd)
 					current = new_node(size);
 
 				current->line = (char *)realloc(current->line, sizeof(char) * size);
+				for (j = 0; j < (size); j++)
+				{
+					current->line[j] = '\0';
+				}
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -85,7 +92,11 @@ char *_getline(const int fd)
 				/*est-ce la bonne size ?*/
 				if (tmp1 != NULL)
 					current = new_node(size);
-				current->line = (char *)realloc(current->line, sizeof(char) * size);
+				current->line = (char *)realloc(current->line, sizeof(char) * (size + 1));
+				for (j = 0; j < (size); j++)
+				{
+					current->line[j] = '\0';
+				}
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -106,6 +117,7 @@ char *_getline(const int fd)
 		if (line)
 			free(line);
 	}
+	free(buffer);
 
 	print_line = strdup(first_line_storage->line);
 
@@ -131,7 +143,7 @@ store_t *new_node(unsigned int len)
 
 	new_node = (store_t *)malloc(sizeof(store_t));
 	new_node->next = NULL;
-	new_node->line = (char *)malloc(sizeof(char) * (len));
+	new_node->line = (char *)malloc(sizeof(char) * (len + 1));
 	new_node->line[len] = '\0';
 	new_node->size = len;
 	new_node->line_finished = false;
