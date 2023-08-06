@@ -7,11 +7,20 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef struct store_line {
-    int size;
-    char *line;
-    bool line_finished;
-    struct store_line *next;
+/**
+ * struct store_line - struct to store each line in a node
+ * @size: size of string
+ * @line: string of a line
+ * @line_finished: bool tell if line is full or not
+ * @next: next node of the list
+ */
+
+typedef struct store_line
+{
+	int size;
+	char *line;
+	bool line_finished;
+	struct store_line *next;
 } store_t;
 
 store_t *new_node(unsigned int len);
