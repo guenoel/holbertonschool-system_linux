@@ -96,8 +96,8 @@ char *_getline(const int fd)
 			}
 			i++;
 		}
-		// if (line)
-		// 	free(line);
+		if (line)
+			free(line);
 	}
 
 	// current = first_line_storage;
