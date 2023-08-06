@@ -34,7 +34,7 @@ char *_getline(const int fd)
 		read_bytes = read(fd, buffer, READ_SIZE);
 
 		/* End of file */
-		if (read_bytes == 0 && first_line_storage->size != 0)
+		if (read_bytes == 0 && first_line_storage->size == 0)
 		{
 			free(buffer);
 			return (NULL);
@@ -48,7 +48,7 @@ char *_getline(const int fd)
 
 		current = first_line_storage;
 		line = (char *) malloc(sizeof(char) * READ_SIZE);
-		/*printf("******** DEBUG: c'est parti pour un boucle buffer\n");*/
+
 		while (buffer[i] != '\0')
 		{
 			line[size] = buffer[i];
@@ -113,7 +113,6 @@ char *_getline(const int fd)
 	tmp2 = first_line_storage;
 	first_line_storage = first_line_storage->next;
 	free_node(tmp2);
-	/*printf("DEBUG: la 2eme ligne sera: %s\n", first_line_storage->line);*/
 
 	return (print_line);
 
