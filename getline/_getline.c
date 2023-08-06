@@ -1,4 +1,11 @@
 #include "_getline.h"
+
+/**
+ * _getline - return a line from a fd next by next
+ * @fd: file descriptor
+ * Return: string of a line
+ */
+
 char *_getline(const int fd)
 {
 	int read_bytes = 0;
@@ -6,10 +13,10 @@ char *_getline(const int fd)
 	store_t *current = NULL;
 	static store_t *first_line_storage;
 	char *line = NULL;
-	static int size = 0;
+	static int size;
 	store_t *tmp1 = NULL;
 	store_t *tmp2 = NULL;
-	char *buffer = (char*) malloc(sizeof(char) * READ_SIZE);
+	char *buffer = (char *) malloc(sizeof(char) * READ_SIZE);
 	char *print_line;
 
 	if (buffer == NULL)
@@ -22,29 +29,27 @@ char *_getline(const int fd)
 		first_line_storage = new_node(0);
 	}
 
-	//printf("******** DEBUG: line finished ?: %d\n", first_line_storage->line_finished);
 	if (!first_line_storage->line_finished)
 	{
-		//printf("******** DEBUG: ya pas de retour à la ligne ! Voyez: %s\n", first_line_storage->line);
 		read_bytes = read(fd, buffer, READ_SIZE);
-		/*if no lines in storage and no lines in buffer: fd is finished*/
-		/* End of file */ 
+
+		/* End of file */
 		if (read_bytes == 0 && first_line_storage->size != 0)
 		{
 			free(buffer);
 			return (NULL);
 		}
 		/* If there is an error */
-		if(read_bytes == -1)
+		if (read_bytes == -1)
 		{
-			//printf("ERROR while reading the line\n");
+			/*printf("ERROR while reading the line\n");*/
 			return (NULL);
 		}
 
 		current = first_line_storage;
-		line = (char*) malloc(sizeof(char) * READ_SIZE);
-		//printf("******** DEBUG: c'est parti pour un boucle buffer\n");
-		while(buffer[i] != '\0')
+		line = (char *) malloc(sizeof(char) * READ_SIZE);
+		/*printf("******** DEBUG: c'est parti pour un boucle buffer\n");*/
+		while (buffer[i] != '\0')
 		{
 			line[size] = buffer[i];
 			size++;
@@ -52,11 +57,12 @@ char *_getline(const int fd)
 			{
 				/* -1 to overwrite \n by \0 */
 				line[size - 1] = '\0';
-				/*in this case this is the first loop - current node already exist*/
+				/*first loop - current node already exist*/
+				/*est-ce la bonne size ?*/
 				if (tmp1 != NULL)
-					current = new_node(size); /*est-ce la bonne size ?*/
-				
-				current->line = (char*)realloc(current->line, sizeof(char) * size);
+					current = new_node(size);
+
+				current->line = (char *)realloc(current->line, sizeof(char) * size);
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -76,9 +82,10 @@ char *_getline(const int fd)
 			if (buffer[i + 1] == '\0')
 			{
 				line[size] = '\0';
+				/*est-ce la bonne size ?*/
 				if (tmp1 != NULL)
-					current = new_node(size); /*est-ce la bonne size ?*/
-				current->line = (char*)realloc(current->line, sizeof(char) * size);
+					current = new_node(size);
+				current->line = (char *)realloc(current->line, sizeof(char) * size);
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -100,32 +107,32 @@ char *_getline(const int fd)
 			free(line);
 	}
 
-	// current = first_line_storage;
-	// while (current->next != NULL)
-	// {
-	// 	printf("/*******DEBUG %s\n", current->line);
-	// 	current = current->next;
-	// }
-
 	print_line = strdup(first_line_storage->line);
 
 	/*save pointer of first node, update new first and free old first node*/
 	tmp2 = first_line_storage;
 	first_line_storage = first_line_storage->next;
 	free_node(tmp2);
-	//printf("DEBUG: la 2eme ligne sera: %s\n", first_line_storage->line);
+	/*printf("DEBUG: la 2eme ligne sera: %s\n", first_line_storage->line);*/
 
-	return(print_line);
+	return (print_line);
 
 }
+
+/**
+ * new_node - create a new node with empty init variables
+ * @len: size of string
+ *
+ * Return: pointer to the new node
+ */
 
 store_t *new_node(unsigned int len)
 {
 	store_t *new_node = NULL;
-	
-	new_node = (store_t*)malloc(sizeof(store_t));
+
+	new_node = (store_t *)malloc(sizeof(store_t));
 	new_node->next = NULL;
-	new_node->line = (char*)malloc(sizeof(char) * (len));
+	new_node->line = (char *)malloc(sizeof(char) * (len));
 	new_node->line[len] = '\0';
 	new_node->size = len;
 	new_node->line_finished = false;
@@ -143,24 +150,24 @@ store_t *new_node(unsigned int len)
 
 bool is_char_in_str(const char *str, char c)
 {
-    if (str == NULL) {
-        return false;
-    }
+	if (str == NULL)
+		return (false);
 
-    while (*str != '\0') {
-        if (*str == c) {
-            return true;
-        }
-        str++;
-    }
+	while (*str != '\0')
+	{
+		if (*str == c)
+			return (true);
+		str++;
+	}
 
-    return false;
+	return (false);
 }
 
 /**
  * free_node - Free a node
  * @node: The node
  */
+
 void free_node(store_t *node)
 {
 		free(node->line);
