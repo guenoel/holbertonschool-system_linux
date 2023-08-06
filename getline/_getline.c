@@ -10,20 +10,20 @@ char *_getline(const int fd)
 {
 	int read_bytes = 0;
 	int i = 0;
-	int j = 0;
 	store_t *current = NULL;
 	static store_t *first_line_storage;
 	char *line = NULL;
 	static int size;
 	store_t *tmp1 = NULL;
 	store_t *tmp2 = NULL;
-	char *buffer = (char *) calloc(READ_SIZE, sizeof(char));
 	char *print_line;
+	char *buffer = (char *) malloc(READ_SIZE * sizeof(char));
 
 	if (buffer == NULL)
 	{
 		return (NULL);
 	}
+	init_string(buffer, READ_SIZE);
 
 	if (!first_line_storage)
 	{
@@ -66,10 +66,7 @@ char *_getline(const int fd)
 					current = new_node(size);
 
 				current->line = (char *)realloc(current->line, sizeof(char) * size);
-				for (j = 0; j < (size); j++)
-				{
-					current->line[j] = '\0';
-				}
+				init_string(current->line, size);
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -93,10 +90,7 @@ char *_getline(const int fd)
 				if (tmp1 != NULL)
 					current = new_node(size);
 				current->line = (char *)realloc(current->line, sizeof(char) * (size + 1));
-				for (j = 0; j < (size); j++)
-				{
-					current->line[j] = '\0';
-				}
+				init_string(current->line, size);
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -181,6 +175,22 @@ bool is_char_in_str(const char *str, char c)
 
 void free_node(store_t *node)
 {
-		free(node->line);
-		free(node);
+	free(node->line);
+	free(node);
+}
+
+/**
+ * init_string - init memory to null
+ * @string: string to erase
+ * @size: size to erase
+ */
+
+void init_string(char *string, int size)
+{
+	int j;
+
+	for (j = 0; j < (size); j++)
+	{
+		string[j] = '\0';
+	}
 }
