@@ -23,7 +23,7 @@ char *_getline(const int fd)
 	{
 		return (NULL);
 	}
-	init_string(buffer, READ_SIZE);
+	init_string(buffer, 0, READ_SIZE);
 
 	if (!first_line_storage)
 	{
@@ -66,7 +66,7 @@ char *_getline(const int fd)
 					current = new_node(size);
 
 				current->line = (char *)realloc(current->line, sizeof(char) * size);
-				init_string(current->line, size);
+				init_string(current->line, 0, size);
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -90,7 +90,10 @@ char *_getline(const int fd)
 				if (tmp1 != NULL)
 					current = new_node(size);
 				current->line = (char *)realloc(current->line, sizeof(char) * (size + 1));
-				init_string(current->line, (size + 1));
+				if (current->size == 0)
+					init_string(current->line, 0, (size + 1));
+				else
+					init_string(current->line, current->size, (size + 1));
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
@@ -185,11 +188,11 @@ void free_node(store_t *node)
  * @size: size to erase
  */
 
-void init_string(char *string, int size)
+void init_string(char *string, int start, int size)
 {
-	int j;
+	int j = start;
 
-	for (j = 0; j < (size); j++)
+	for (; j < (size); j++)
 	{
 		string[j] = '\0';
 	}

@@ -27,7 +27,7 @@ store_t *new_node(unsigned int len);
 char *_getline(const int fd);
 bool is_char_in_str(const char *str, char c);
 void free_node(store_t *node);
-void init_string(char *string, int size);
+void init_string(char *string, int start, int size);
 
 #define READ_SIZE 1024
 
