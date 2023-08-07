@@ -93,7 +93,7 @@ char *_getline(const int fd)
 				if (current->size == 0)
 					init_string(current->line, 0, (size + 1));
 				else
-					init_string(current->line, current->size, (size + 1));
+					init_string(current->line, (current->size - 1), (size + 1));
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
