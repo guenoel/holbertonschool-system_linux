@@ -90,7 +90,7 @@ char *_getline(const int fd)
 				if (tmp1 != NULL)
 					current = new_node(size);
 				current->line = (char *)realloc(current->line, sizeof(char) * (size + 1));
-				init_string(current->line, size);
+				init_string(current->line, (size + 1));
 				if (current->line == NULL)
 				{
 					printf("Fail to realloc\n");
