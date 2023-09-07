@@ -16,9 +16,10 @@ def read_process_memory(pid):
         with open(maps_file, 'r') as maps:
             for line in maps:
                 if "[heap]" in line:
-                    split_values = line.split("-")
-                    start = int(split_values[0], 16)
-                    end = int(split_values[1], 16)
+                    split_values = line.split()
+                    split_mem_address = split_values[0].split('-')
+                    start = int(split_mem_address[0], 16)
+                    end = int(split_mem_address[1], 16)
                     print("Found [heap]:")
                     print("    addresses =", line.split()[0])
                     print("    permissions =", line.split()[1])
