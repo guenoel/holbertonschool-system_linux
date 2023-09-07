@@ -9,6 +9,7 @@ def print_usage():
     print("Usage: {} [PID] search_string replace_string".format(sys.argv[0]))
     sys.exit(1)
 
+
 def read_process_memory(pid):
     maps_file = "/proc/{}/maps".format(pid)
     mem_file = "/proc/{}/mem".format(pid)
