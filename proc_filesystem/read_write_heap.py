@@ -4,6 +4,7 @@ Script that finds and replaces a string in the heap of a running process.
 '''
 import sys
 
+
 def print_usage():
     print("Usage: {} [PID] search_string replace_string".format(sys.argv[0]))
     sys.exit(1)
@@ -35,6 +36,7 @@ def read_process_memory(pid):
               .format(maps_file, e.errno, e.strerror))
     return None, None
 
+
 def find_and_replace_string(pid, search_string, replace_string):
     start, end = read_process_memory(pid)
 
@@ -65,6 +67,7 @@ def find_and_replace_string(pid, search_string, replace_string):
     except IOError as e:
         print("[ERROR] Can't open memory file for PID {}: I/O error({}): {}"
               .format(pid, e.errno, e.strerror))
+
 
 def main():
     if len(sys.argv) != 4:
