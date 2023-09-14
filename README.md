@@ -18,11 +18,11 @@ The list of projects contained follows :
 
 ## Author 
 
-* José Fernàndez Armas
+* Guénoël Andrieux
 
 <sub>_You can contact me_ 📩
 
-[Fernandez Armas José Daniel](https://github.com/crasride)
+[Guénoël Andrieux](https://github.com/guenoel)
 
 <p align="left">
 <a href="https://twitter.com/GuenoelAndrieux" target="blank"><img align="center" src="./images/twitter.svg" alt="GuenoelAndrieux" height="30" width="40" /></a>
