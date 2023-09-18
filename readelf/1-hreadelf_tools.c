@@ -5,37 +5,37 @@
 
 char *get_section_name32(Elf32_Shdr section_header, FILE *file)
 {
-	char *SectNames = NULL;
+	char *section_names = NULL;
 
 	fread(&section_header, 1, sizeof(section_header), file);
-	SectNames = (char *)malloc(section_header.sh_size);
+	section_names = (char *)malloc(section_header.sh_size);
 	fseek(file, section_header.sh_offset, SEEK_SET);
-	fread(SectNames, 1, section_header.sh_size, file);
-	return (SectNames);
+	fread(section_names, 1, section_header.sh_size, file);
+	return (section_names);
 }
 
 char *get_section_name32_big(Elf32_Shdr section_header, FILE *file)
 {
-	char *SectNames = NULL;
+	char *section_names = NULL;
 
 		fread(&section_header, 1, sizeof(section_header), file);
 		read_elf32_be_section(&section_header);
-		SectNames = (char *)malloc(section_header.sh_size);
+		section_names = (char *)malloc(section_header.sh_size);
 		fseek(file, section_header.sh_offset, SEEK_SET);
-		fread(SectNames, 1, section_header.sh_size, file);
-	return (SectNames);
+		fread(section_names, 1, section_header.sh_size, file);
+	return (section_names);
 }
 
 
 char *get_section_name64(Elf64_Shdr section_header, FILE *file)
 {
-	char *SectNames = NULL;
+	char *section_names = NULL;
 
 	fread(&section_header, 1, sizeof(section_header), file);
-	SectNames = (char *)malloc(section_header.sh_size);
+	section_names = (char *)malloc(section_header.sh_size);
 	fseek(file, section_header.sh_offset, SEEK_SET);
-	fread(SectNames, 1, section_header.sh_size, file);
-	return (SectNames);
+	fread(section_names, 1, section_header.sh_size, file);
+	return (section_names);
 }
 
 const char *getSectionFlags(unsigned int sh_flags)

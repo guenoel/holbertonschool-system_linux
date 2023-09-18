@@ -74,5 +74,8 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr);
 uint16_t my_be16toh(uint16_t value);
 uint32_t my_be32toh(uint32_t value);
 char *get_section_name32_big(Elf32_Shdr section_header, FILE *file);
+void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32, Elf64_Ehdr elf_header64, char *section_names);
+void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32, Elf64_Ehdr elf_header64, off_t section_table_offset);
+char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32, Elf64_Ehdr elf_header64);
 
 #endif /* HELF_H */
