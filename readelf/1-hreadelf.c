@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	Elf64_Ehdr elf_header64;
 	off_t section_table_offset;
 	char *section_names = NULL;
-	int is_32bit = 0; /* Variable para detectar si es un archivo de 32 bits */
+	int is_32bit = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
 
 	if (argc != 2)
 		return (EXIT_SUCCESS);
@@ -27,24 +27,23 @@ int main(int argc, char *argv[])
 		perror("No se puede abrir el archivo");
 		return (1);
 	}
-	/* Leer el encabezado ELF principal */
-	fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
-	/* Verificar si es un archivo ELF de 32 bits */
+
+	/* Check if 32 bits */
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
+		/* Store in struct from start of file to end of ELF header */
+		fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
 		is_32bit = 1;
-		/* Detectar el endianness del archivo ELF de 32 bits */
+		/* Check if Big Endian (not Little Endian) */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 			read_elf32_be_header(&elf_header32);
 	}
-	else
-	{
-		/* Retroceder al principio del archivo si no es un archivo de 32 bits */
-		fseek(file, 0, SEEK_SET);
+	else /* 64 bits */
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
-	}
-	/* Leer la posición de la tabla de secciones */
+
+	/* get qty of bytes from start of file to get start of section header table */
 	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
+	/* Store all section names (or section table ?) */
 	section_names = set_section_names(is_32bit, file, elf_header32, elf_header64);
 	print_header(is_32bit, file, elf_header32, elf_header64,
 					section_table_offset);
@@ -129,26 +128,22 @@ char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 
 	if (is_32bit)
 	{
+		/* 32 bits Small Endian */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2LSB)
 		{
-			fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx *
-					elf_header32.e_shentsize, SEEK_SET);
-			section_names = get_section_name32(section_header32, file);
+			/* Store sections names  */
+			section_names = get_section_name32(section_header32, file, elf_header32, 0);
 		}
+		/* 32 bits Big Endian */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 		{
+			/* read with conversion for big endian */
 			read_elf32_be_section(&section_header32);
-			fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx *
-					elf_header32.e_shentsize, SEEK_SET);
-			section_names = get_section_name32_big(section_header32, file);
+			section_names = get_section_name32(section_header32, file, elf_header32, 1);
 		}
 	}
-	else
-	{
-		fseek(file, elf_header64.e_shoff + elf_header64.e_shstrndx *
-				elf_header64.e_shentsize, SEEK_SET);
-		section_names = get_section_name64(section_header64, file);
-	}
+	else /* 64 bits */
+		section_names = get_section_name64(section_header64, file, elf_header64);
 	return (section_names);
 }
 
@@ -180,14 +175,18 @@ void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 		{
 			char *name = "";
 
+			/* Store section header */
 			fread(&section_header32, sizeof(Elf32_Shdr), 1, file);
 
+			/* convert section header for big endian */
 			if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 				read_elf32_be_section(&section_header32);
 
+			/* sh_name: Its value is an index into the section header */
+			/* string table section giving the location of a null-terminated string */
 			if (section_header32.sh_name)
 				name = section_names + section_header32.sh_name;
-			print_Section_Info_32bits(index, section_header32, name);
+			print_Section_Info_32bits(index, name, section_header32);
 		}
 		printKeyToFlags_32bits();
 	}
@@ -200,10 +199,9 @@ void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 			char *name = "";
 
 			fread(&section_header64, sizeof(Elf64_Shdr), 1, file);
-
 			if (section_header64.sh_name)
 				name = section_names + section_header64.sh_name;
-			print_Section_Info_64bits(index, section_header64, name);
+			print_Section_Info_64bits(index, name, section_header64);
 		}
 		printKeyToFlags_64bits();
 	}
