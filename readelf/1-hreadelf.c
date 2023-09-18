@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
 		}
 			/* Si es big-endian, usa la función para leer el encabezado */
 		} else if (elf_header32.e_ident[EI_DATA] == ELFDATA2LSB) {
-			;
 			/* Si es little-endian, puedes seguir con el código actual. */
 		} else {
 			printf("Formato de datos ELF de 32 bits no reconocido.\n");
@@ -53,15 +52,25 @@ int main(int argc, char *argv[])
 		/* Leer el encabezado ELF de 64 bits */
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
 	}
+
 	/* Leer la posición de la tabla de secciones */
 	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
 	/* Create sectHdr and SectNames */
 	if (is_32bit)
 	{
-		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
+		if (elf_header32.e_ident[EI_DATA] == ELFDATA2LSB)
+		{
 			read_elf32_be_section(&section_header32);
 		fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx * elf_header32.e_shentsize, SEEK_SET);
 		SectNames = get_section_name32(section_header32, file);
+		}
+
+		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
+		{
+			read_elf32_be_section(&section_header32);
+		fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx * elf_header32.e_shentsize, SEEK_SET);
+		SectNames = get_section_name32_big(section_header32, file);
+		}
 	}
 	else
 	{
@@ -93,7 +102,7 @@ int main(int argc, char *argv[])
 		for (index = 0; index < elf_header32.e_shnum; index++)
 		{
 			char* name = "";
-			
+
 			fread(&section_header32, sizeof(Elf32_Shdr), 1, file);
 
 			if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
@@ -245,6 +254,18 @@ char *get_section_name32(Elf32_Shdr section_header, FILE *file)
 	return (SectNames);
 }
 
+char *get_section_name32_big(Elf32_Shdr section_header, FILE *file)
+{
+	char* SectNames = NULL;
+	fread(&section_header, 1, sizeof(section_header), file);
+	read_elf32_be_section(&section_header);
+	SectNames = (char *)malloc(section_header.sh_size);
+	fseek(file, section_header.sh_offset, SEEK_SET);
+	fread(SectNames, 1, section_header.sh_size, file);
+	return (SectNames);
+}
+
+
 char *get_section_name64(Elf64_Shdr section_header, FILE *file)
 {
 	char* SectNames = NULL;
@@ -284,4 +305,17 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr)
 	ehdr->e_shentsize = my_be16toh(ehdr->e_shentsize);
 	ehdr->e_shnum = my_be16toh(ehdr->e_shnum);
 	ehdr->e_shstrndx = my_be16toh(ehdr->e_shstrndx);
+}
+
+uint16_t my_be16toh(uint16_t value)
+{
+	return (((value >> 8) & 0xFF) | ((value & 0xFF) << 8));
+}
+
+uint32_t my_be32toh(uint32_t value)
+{
+	return (((value >> 24) & 0xFF) |
+		((value >>  8) & 0xFF00) |
+		((value & 0xFF00) <<  8) |
+		((value & 0xFF) << 24));
 }
