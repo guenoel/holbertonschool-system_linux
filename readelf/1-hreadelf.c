@@ -28,18 +28,23 @@ int main(int argc, char *argv[])
 		return (1);
 	}
 
+	/* Read ELF header to check if class 32 or 64 */
+	fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
 	/* Check if 32 bits */
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		/* Store in struct from start of file to end of ELF header */
-		fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
+		
 		is_32bit = 1;
 		/* Check if Big Endian (not Little Endian) */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 			read_elf32_be_header(&elf_header32);
 	}
 	else /* 64 bits */
+	{
+		fseek(file, 0, SEEK_SET);
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
+	}
 
 	/* get qty of bytes from start of file to get start of section header table */
 	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
