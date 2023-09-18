@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
 	Elf32_Ehdr elf_header32;
 	Elf64_Ehdr elf_header64;
-	off_t section_table_offset;
+	off_t sect_table_offset;
 	char *section_names = NULL;
 	int is_32bit = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
 
@@ -27,14 +27,12 @@ int main(int argc, char *argv[])
 		perror("No se puede abrir el archivo");
 		return (1);
 	}
-
 	/* Read ELF header to check if class 32 or 64 */
 	fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
 	/* Check if 32 bits */
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		/* Store in struct from start of file to end of ELF header */
-		
 		is_32bit = 1;
 		/* Check if Big Endian (not Little Endian) */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
@@ -45,13 +43,11 @@ int main(int argc, char *argv[])
 		fseek(file, 0, SEEK_SET);
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
 	}
-
 	/* get qty of bytes from start of file to get start of section header table */
-	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
+	sect_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
 	/* Store all section names (or section table ?) */
 	section_names = set_section_names(is_32bit, file, elf_header32, elf_header64);
-	print_header(is_32bit, file, elf_header32, elf_header64,
-					section_table_offset);
+	print_header(is_32bit, file, elf_header32, elf_header64, sect_table_offset);
 	loop_print(is_32bit, file, elf_header32, elf_header64, section_names);
 	fclose(file);
 	return (0);

@@ -149,7 +149,7 @@ void print_Section_Info_32bits(int index, char *name,
 void print_Section_Info_64bits(int index, char *name,
 								Elf64_Shdr section_header);
 void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
-					Elf64_Ehdr elf_header64, off_t section_table_offset);
+					Elf64_Ehdr elf_header64, off_t sect_table_offset);
 
 /* Functions 1-hreadelf_tools.c */
 char *get_section_name32(Elf32_Shdr section_header, FILE *file,

@@ -12,15 +12,15 @@
 * @file: A pointer to the open ELF file.
 * @elf_header32: The 32-bit ELF header (if applicable).
 * @elf_header64: The 64-bit ELF header (if applicable).
-* @section_table_offset: offset of the section header table within the file.
+* @sect_table_offset: offset of the section header table within the file.
 */
 void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
-					Elf64_Ehdr elf_header64, off_t section_table_offset)
+					Elf64_Ehdr elf_header64, off_t sect_table_offset)
 {
 	/* Imprimir la información sobre la tabla de secciones y encabezado */
 	printf("There are %u section headers, starting at offset 0x%lx:\n\n",
 		is_32bit ? elf_header32.e_shnum : elf_header64.e_shnum,
-		section_table_offset);
+		sect_table_offset);
 	if (is_32bit)
 	{
 		fseek(file, elf_header32.e_shoff, SEEK_SET);
