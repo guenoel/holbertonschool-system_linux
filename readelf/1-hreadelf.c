@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	Elf64_Ehdr elf_header64;
 	off_t sect_table_offset;
 	char *section_names = NULL;
-	int is_32bit = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
+	int is_32bits = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
 
 	if (argc != 2)
 		return (EXIT_SUCCESS);
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		/* Store in struct from start of file to end of ELF header */
-		is_32bit = 1;
+		is_32bits = 1;
 		/* Check if Big Endian (not Little Endian) */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 			read_elf32_be_header(&elf_header32);
@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
 	}
 	/* get qty of bytes from start of file to get start of section header table */
-	sect_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
+	sect_table_offset = is_32bits ? elf_header32.e_shoff : elf_header64.e_shoff;
 	/* Store all section names (or section table ?) */
-	section_names = set_section_names(is_32bit, file, elf_header32, elf_header64);
-	print_header(is_32bit, file, elf_header32, elf_header64, sect_table_offset);
-	loop_print(is_32bit, file, elf_header32, elf_header64, section_names);
+	section_names = set_section_names(is_32bits, file, elf_header32, elf_header64);
+	print_header(is_32bits, file, elf_header32, elf_header64, sect_table_offset);
+	loop_print(is_32bits, file, elf_header32, elf_header64, section_names);
 	fclose(file);
 	return (0);
 }
@@ -113,21 +113,21 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr)
 * a pointer to it.It can handle both 32-bit and 64-bit ELF files, adjusting its
 * behavior based on the provided parameters.
 *
-* @is_32bit: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
+* @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
 * @file: A pointer to the open ELF file.
 * @elf_header32: The 32-bit ELF header (if applicable).
 * @elf_header64: The 64-bit ELF header (if applicable).
 *
 * Return: A pointer to the section names string table.
 */
-char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+char *set_section_names(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 						Elf64_Ehdr elf_header64)
 {
 	Elf32_Shdr section_header32;
 	Elf64_Shdr section_header64;
 	char *section_names = NULL;
 
-	if (is_32bit)
+	if (is_32bits)
 	{
 		/* 32 bits Small Endian */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2LSB)
@@ -157,18 +157,18 @@ char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
  * addresses, offsets, sizes, and other attributes. It can handle both 32-bit
  * and 64-bit ELF files.
  *
- * @is_32bit: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
+ * @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
  * @file: A pointer to the open ELF file.
  * @elf_header32: The 32-bit ELF header (if applicable).
  * @elf_header64: The 64-bit ELF header (if applicable).
  * @section_names: A pointer to the section names string table.
  */
-void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 				Elf64_Ehdr elf_header64, char *section_names)
 {
 	int index = 0;
 
-	if (is_32bit)
+	if (is_32bits)
 	{
 		Elf32_Shdr section_header32;
 

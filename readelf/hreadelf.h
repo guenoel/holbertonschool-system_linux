@@ -133,12 +133,30 @@ typedef struct Shdr64
 } MyElf64_Shdr;
 
 
+typedef union _Elf_Ehdr
+{
+	Elf32_Ehdr elf_header32;
+	Elf64_Ehdr elf_header64;
+} Elf_Ehdr;
+
+typedef union _Elf_Shdr
+{
+	Elf32_Shdr sect_header32;
+	Elf64_Shdr sect_header64;
+} Elf_Shdr;
+
+typedef union _Elf_Phdr
+{
+	Elf32_Phdr prog_header32;
+	Elf64_Phdr prog_header64;
+} Elf_Phdr;
+
 /* Functions 1-hreadelf.c */
 void read_elf32_be_section(Elf32_Shdr *section_header32);
 void read_elf32_be_header(Elf32_Ehdr *ehdr);
-char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+char *set_section_names(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 						Elf64_Ehdr elf_header64);
-void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 				Elf64_Ehdr elf_header64, char *section_names);
 
 /* Functions 1-hreadelf_print.c*/
@@ -148,8 +166,9 @@ void print_Section_Info_32bits(int index, char *name,
 								Elf32_Shdr section_header);
 void print_Section_Info_64bits(int index, char *name,
 								Elf64_Shdr section_header);
-void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+void print_header(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 					Elf64_Ehdr elf_header64, off_t sect_table_offset);
+void print_header2(int is_32bits, FILE *file, Elf_Ehdr elf_header);
 
 /* Functions 1-hreadelf_tools.c */
 char *get_section_name32(Elf32_Shdr section_header, FILE *file,
@@ -159,31 +178,19 @@ char *get_section_name64(Elf64_Shdr section_header, FILE *file,
 const char *getSectionTypeName(unsigned int sh_type);
 const char *getSectionFlags(unsigned int sh_flags);
 
-/* ------------------- Task 2-hreadelf.c ----------------------------------*/
+/* Functions 2-hreadelf */
+#define MAX_INTERP_SIZE 1024
 
-typedef struct
-{
-uint32_t p_type;	/* Type of segment */
-uint32_t p_offset;	/* Offset of the segment in the file */
-uint32_t p_vaddr;	/* Virtual address of the segment in memory */
-uint32_t p_paddr;	/* Physical address of the segment in memory (reserved)*/
-uint32_t p_filesz;	/* Size of segment the file (may be smaller than p_memsz)*/
-uint32_t p_memsz;	/* Size of segment in memory (may be larger than p_filesz)*/
-uint32_t p_flags;	/* Segment flags (permissions, etc.) */
-uint32_t p_align;	/* Alignment of the segment in memory and the file */
-} MyElf32_Phdr;
-
-
-typedef struct
-{
-uint64_t p_type;
-uint64_t p_flags;
-uint64_t p_offset;
-uint64_t p_vaddr;
-uint64_t p_paddr;
-uint64_t p_filesz;
-uint64_t p_memsz;
-uint64_t p_align;
-} MyElf64_Phdr;
-
+char *get_program_name(Elf_Phdr prog_header, FILE *file,
+						Elf_Ehdr elf_header, int is_32bits, int is_big_endian);
+char *set_prog_names(int is_32bits, FILE *file, Elf_Ehdr elf_header);
+void loop_print2(int is_32bits, FILE *file, Elf_Ehdr elf_header);
+char *get_section_name2(Elf_Shdr section_header, FILE *file,
+						Elf_Ehdr elf_header, int is_32bits, int is_big_endian);
+void read_elf32_be_prog(Elf32_Phdr *phdr);
+void print_Program_Info_32bits(Elf32_Phdr prog_header);
+void print_Program_Info_64bits(Elf64_Phdr prog_header);
+int print_interp32(Elf32_Phdr program_header32, FILE *file);
+int print_interp64(Elf64_Phdr program_header64, FILE *file);
+const char *getProgramTypeName(unsigned int p_type);
 #endif /* HELF_H */
