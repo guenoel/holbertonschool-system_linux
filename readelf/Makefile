@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -std=c90 -Wall -Werror -Wextra -pedantic
 FILES_0 = 0-hreadelf_tools.c 0-hreadelf_convert.c
 FILES_1 = 1-hreadelf_tools.c 0-hreadelf_convert.c 1-hreadelf_print.c
-FILES_2 = 2-hreadelf_tools.c 0-hreadelf_convert.c 2-hreadelf_print.c 0-hreadelf_tools.c
+FILES_2 = 0-hreadelf_convert.c
 
 # Linker Flags (empty in this case)
 LDFLAGS =
@@ -20,6 +20,7 @@ all: 0-hreadelf 1-hreadelf 2-hreadelf
 	$(CC) $(CFLAGS) $(LDFLAGS) $(FILES_1) -o $@ $<
 2-hreadelf: 2-hreadelf.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $(FILES_2) -o $@ $<
+
 
 # Target to clean generated files
 clean:

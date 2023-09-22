@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
 
 	Elf32_Ehdr elf_header32;
 	Elf64_Ehdr elf_header64;
-	off_t sect_table_offset;
+	off_t section_table_offset;
 	char *section_names = NULL;
-	int is_32bits = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
+	int is_32bit = 0; /* Variable para detectar si es un archivo de 32 bits */
 
 	if (argc != 2)
 		return (EXIT_SUCCESS);
@@ -27,28 +27,28 @@ int main(int argc, char *argv[])
 		perror("No se puede abrir el archivo");
 		return (1);
 	}
-	/* Read ELF header to check if class 32 or 64 */
+	/* Leer el encabezado ELF principal */
 	fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
-	/* Check if 32 bits */
+	/* Verificar si es un archivo ELF de 32 bits */
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
-		/* Store in struct from start of file to end of ELF header */
-		is_32bits = 1;
-		/* Check if Big Endian (not Little Endian) */
+		is_32bit = 1;
+		/* Detectar el endianness del archivo ELF de 32 bits */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 			read_elf32_be_header(&elf_header32);
 	}
-	else /* 64 bits */
+	else
 	{
+		/* Retroceder al principio del archivo si no es un archivo de 32 bits */
 		fseek(file, 0, SEEK_SET);
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
 	}
-	/* get qty of bytes from start of file to get start of section header table */
-	sect_table_offset = is_32bits ? elf_header32.e_shoff : elf_header64.e_shoff;
-	/* Store all section names (or section table ?) */
-	section_names = set_section_names(is_32bits, file, elf_header32, elf_header64);
-	print_header(is_32bits, file, elf_header32, elf_header64, sect_table_offset);
-	loop_print(is_32bits, file, elf_header32, elf_header64, section_names);
+	/* Leer la posición de la tabla de secciones */
+	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
+	section_names = set_section_names(is_32bit, file, elf_header32, elf_header64);
+	print_header(is_32bit, file, elf_header32, elf_header64,
+					section_table_offset);
+	loop_print(is_32bit, file, elf_header32, elf_header64, section_names);
 	fclose(file);
 	return (0);
 }
@@ -113,38 +113,42 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr)
 * a pointer to it.It can handle both 32-bit and 64-bit ELF files, adjusting its
 * behavior based on the provided parameters.
 *
-* @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
+* @is_32bit: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
 * @file: A pointer to the open ELF file.
 * @elf_header32: The 32-bit ELF header (if applicable).
 * @elf_header64: The 64-bit ELF header (if applicable).
 *
 * Return: A pointer to the section names string table.
 */
-char *set_section_names(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
+char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 						Elf64_Ehdr elf_header64)
 {
 	Elf32_Shdr section_header32;
 	Elf64_Shdr section_header64;
 	char *section_names = NULL;
 
-	if (is_32bits)
+	if (is_32bit)
 	{
-		/* 32 bits Small Endian */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2LSB)
 		{
-			/* Store sections names  */
-			section_names = get_section_name32(section_header32, file, elf_header32, 0);
+			fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx *
+					elf_header32.e_shentsize, SEEK_SET);
+			section_names = get_section_name32(section_header32, file);
 		}
-		/* 32 bits Big Endian */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 		{
-			/* read with conversion for big endian */
 			read_elf32_be_section(&section_header32);
-			section_names = get_section_name32(section_header32, file, elf_header32, 1);
+			fseek(file, elf_header32.e_shoff + elf_header32.e_shstrndx *
+					elf_header32.e_shentsize, SEEK_SET);
+			section_names = get_section_name32_big(section_header32, file);
 		}
 	}
-	else /* 64 bits */
-		section_names = get_section_name64(section_header64, file, elf_header64);
+	else
+	{
+		fseek(file, elf_header64.e_shoff + elf_header64.e_shstrndx *
+				elf_header64.e_shentsize, SEEK_SET);
+		section_names = get_section_name64(section_header64, file);
+	}
 	return (section_names);
 }
 
@@ -157,18 +161,18 @@ char *set_section_names(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
  * addresses, offsets, sizes, and other attributes. It can handle both 32-bit
  * and 64-bit ELF files.
  *
- * @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
+ * @is_32bit: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
  * @file: A pointer to the open ELF file.
  * @elf_header32: The 32-bit ELF header (if applicable).
  * @elf_header64: The 64-bit ELF header (if applicable).
  * @section_names: A pointer to the section names string table.
  */
-void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
+void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 				Elf64_Ehdr elf_header64, char *section_names)
 {
 	int index = 0;
 
-	if (is_32bits)
+	if (is_32bit)
 	{
 		Elf32_Shdr section_header32;
 
@@ -176,18 +180,14 @@ void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 		{
 			char *name = "";
 
-			/* Store section header */
 			fread(&section_header32, sizeof(Elf32_Shdr), 1, file);
 
-			/* convert section header for big endian */
 			if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 				read_elf32_be_section(&section_header32);
 
-			/* sh_name: Its value is an index into the section header */
-			/* string table section giving the location of a null-terminated string */
 			if (section_header32.sh_name)
 				name = section_names + section_header32.sh_name;
-			print_Section_Info_32bits(index, name, section_header32);
+			print_Section_Info_32bits(index, section_header32, name);
 		}
 		printKeyToFlags_32bits();
 	}
@@ -200,9 +200,10 @@ void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
 			char *name = "";
 
 			fread(&section_header64, sizeof(Elf64_Shdr), 1, file);
+
 			if (section_header64.sh_name)
 				name = section_names + section_header64.sh_name;
-			print_Section_Info_64bits(index, name, section_header64);
+			print_Section_Info_64bits(index, section_header64, name);
 		}
 		printKeyToFlags_64bits();
 	}

@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <string.h>
+
 
 /* ------------------- Task 0-hreadelf.c ----------------------------------*/
 /**
@@ -133,64 +135,73 @@ typedef struct Shdr64
 } MyElf64_Shdr;
 
 
-typedef union _Elf_Ehdr
-{
-	Elf32_Ehdr elf_header32;
-	Elf64_Ehdr elf_header64;
-} Elf_Ehdr;
-
-typedef union _Elf_Shdr
-{
-	Elf32_Shdr sect_header32;
-	Elf64_Shdr sect_header64;
-} Elf_Shdr;
-
-typedef union _Elf_Phdr
-{
-	Elf32_Phdr prog_header32;
-	Elf64_Phdr prog_header64;
-} Elf_Phdr;
-
 /* Functions 1-hreadelf.c */
 void read_elf32_be_section(Elf32_Shdr *section_header32);
 void read_elf32_be_header(Elf32_Ehdr *ehdr);
-char *set_section_names(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
+char *set_section_names(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 						Elf64_Ehdr elf_header64);
-void loop_print(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
+void loop_print(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 				Elf64_Ehdr elf_header64, char *section_names);
 
 /* Functions 1-hreadelf_print.c*/
 void printKeyToFlags_32bits(void);
 void printKeyToFlags_64bits(void);
-void print_Section_Info_32bits(int index, char *name,
-								Elf32_Shdr section_header);
-void print_Section_Info_64bits(int index, char *name,
-								Elf64_Shdr section_header);
-void print_header(int is_32bits, FILE *file, Elf32_Ehdr elf_header32,
-					Elf64_Ehdr elf_header64, off_t sect_table_offset);
-void print_header2(int is_32bits, FILE *file, Elf_Ehdr elf_header);
+void print_Section_Info_32bits(int index, Elf32_Shdr section_header,
+								char *name);
+void print_Section_Info_64bits(int index, Elf64_Shdr section_header,
+								char *name);
+void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
+					Elf64_Ehdr elf_header64, off_t section_table_offset);
 
 /* Functions 1-hreadelf_tools.c */
-char *get_section_name32(Elf32_Shdr section_header, FILE *file,
-						Elf32_Ehdr elf_header32, int is_big_endian);
-char *get_section_name64(Elf64_Shdr section_header, FILE *file,
-						Elf64_Ehdr elf_header64);
+char *get_section_name32(Elf32_Shdr section_header, FILE *file);
+char *get_section_name32_big(Elf32_Shdr section_header, FILE *file);
+char *get_section_name64(Elf64_Shdr section_header, FILE *file);
 const char *getSectionTypeName(unsigned int sh_type);
 const char *getSectionFlags(unsigned int sh_flags);
 
-/* Functions 2-hreadelf */
+/* ------------------- Task 2-hreadelf.c ----------------------------------*/
 #define MAX_INTERP_SIZE 1024
 
-char *get_program_name(Elf_Phdr prog_header, FILE *file,
-						Elf_Ehdr elf_header, int is_32bits, int is_big_endian);
-char *set_prog_names(int is_32bits, FILE *file, Elf_Ehdr elf_header);
-void loop_print2(int is_32bits, FILE *file, Elf_Ehdr elf_header);
-char *get_section_name2(Elf_Shdr section_header, FILE *file,
-						Elf_Ehdr elf_header, int is_32bits, int is_big_endian);
+typedef struct
+{
+	union
+	{
+		Elf32_Ehdr ehdr32;
+		Elf64_Ehdr ehdr64;
+	} ehdr;
+} ElfHeader;
+typedef struct
+{
+	union
+	{
+		Elf32_Phdr phdr32;
+		Elf64_Phdr phdr64;
+	} phdr;
+} ElfProgramHeader;
+
+
+/* estructura para el mapeo de sección a segmento */
+#define MAX_SECTIONS 100
+#define MAX_SECTION_NAME 100
+
+typedef struct
+{
+	int segment_number;
+	char sections[MAX_INTERP_SIZE];
+} SectionToSegmentMapping;
+
+
+const char *getElfTypeName(uint16_t e_type);
+void print_elf_info(ElfHeader *elf_header, int is_32bit);
+void print_program_header_info_64(Elf64_Phdr *program_header);
+void print_program_header_info_32(Elf32_Phdr *program_header);
+const char *getProgramHeaderTypeName32(uint32_t p_type);
+const char *getProgramHeaderTypeName64(uint64_t p_type);
+void print_interpreter_info(const char *interp);
 void read_elf32_be_prog(Elf32_Phdr *phdr);
-void print_Program_Info_32bits(Elf32_Phdr prog_header);
-void print_Program_Info_64bits(Elf64_Phdr prog_header);
-int print_interp32(Elf32_Phdr program_header32, FILE *file);
-int print_interp64(Elf64_Phdr program_header64, FILE *file);
-const char *getProgramTypeName(unsigned int p_type);
+
+void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_32bit);
+void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_32bit);
+
 #endif /* HELF_H */

@@ -1,51 +1,418 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <elf.h>
 #include "hreadelf.h"
 
-/**
- * main - entry point of make 0
- * @argc: count of arguments
- * @argv: array of arguments
- * Return: 0 success, 1 otherwise
- */
+
 int main(int argc, char *argv[])
 {
 	FILE *file = NULL;
-	Elf_Ehdr elf_header;
-
-	int is_32bits = 0; /* Flag 1 -> 32 bits 0 -> 64 bits */
+	ElfHeader elf_header;
+	int is_32bit = 0;
+	int i = 0;
+	size_t program_header_size;
+	char interp[MAX_INTERP_SIZE];
 
 	if (argc != 2)
-		return (EXIT_SUCCESS);
+	{
+		fprintf(stderr, "Uso: %s elf_filename\n", argv[0]);
+		return 1;
+	}
+
 	file = fopen(argv[1], "rb");
 	if (file == NULL)
 	{
-		perror("Can't open file");
-		return (1);
+		perror("No se puede abrir el archivo");
+		return 1;
 	}
-	/* Read ELF header to check if class 32 or 64 */
-	fread(&elf_header, sizeof(Elf_Ehdr), 1, file);
 
-	/* Check if 32 bits */
-	if (elf_header.elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
+	/* Leer el encabezado ELF principal */
+	fread(&elf_header, sizeof(ElfHeader), 1, file);
+	/* Verificar si es un archivo ELF de 32 o 64 bits */
+	if (elf_header.ehdr.ehdr32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
-		/* Store in struct from start of file to end of ELF header */
-		is_32bits = 1;
-		/* Check if Big Endian (not Little Endian) */
-		if (elf_header.elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
-			read_elf32_be_header(&elf_header.elf_header32);
+		is_32bit = 1;
+		if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2LSB)
+		{
+		}
+		else if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+		{
+			read_elf32_be_header(&elf_header.ehdr.ehdr32);
+		}
 	}
-	print_header2(is_32bits, file, elf_header);
-	fseek(file, (is_32bits ? elf_header.elf_header32.e_phoff : elf_header.elf_header64.e_phoff), SEEK_SET);
-	loop_print2(is_32bits, file, elf_header);
+	else if (elf_header.ehdr.ehdr64.e_ident[EI_CLASS] == ELFCLASS64)
+	{
+		is_32bit = 0;
+	}
+	else
+	{
+		fprintf(stderr, "El archivo ELF tiene una clase desconocida.\n");
+		fclose(file);
+		return 1;
+	}
+	/* Imprimir información del encabezado ELF */
+	print_elf_info(&elf_header, is_32bit);
 
-	printf("\n");
-	printf(" Section to Segment mapping:\n");
-	printf("  Segment Sections...\n");
+	 /* Calcular el tamaño de un encabezado de programa */
+	program_header_size = is_32bit ? sizeof(Elf32_Phdr) : sizeof(Elf64_Phdr);
+
+	/* Mover el puntero de archivo al inicio de los encabezados de programa */
+	fseek(file, (is_32bit ? elf_header.ehdr.ehdr32.e_phoff : elf_header.ehdr.ehdr64.e_phoff), SEEK_SET);
+
+	/* Leer y mostrar la información de los encabezados del programa ELF */
+	for (i = 0; i < (is_32bit ? elf_header.ehdr.ehdr32.e_phnum : elf_header.ehdr.ehdr64.e_phnum); i++)
+	{
+		if (is_32bit)
+		{
+			Elf32_Phdr program_header;
+			fread(&program_header, program_header_size, 1, file);
+			if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+				read_elf32_be_prog(&program_header);
+			print_program_header_info_32(&program_header);
+
+			if (program_header.p_type == PT_INTERP)
+			{
+				if (program_header.p_filesz <= MAX_INTERP_SIZE)
+				{
+					/* Guardo la posicion actual */
+					long current_pos = ftell(file);
+
+					/* Mover el puntero posicio del programa intérprete */
+					fseek(file, program_header.p_offset, SEEK_SET);
+
+					/* Leer el programa intérprete en la matriz interp */
+					fread(interp, program_header.p_filesz, 1, file);
+					interp[program_header.p_filesz] = '\0';
+
+					print_interpreter_info(interp);
+
+					/* Recupero la posicion guardada */
+					fseek(file, current_pos, SEEK_SET);
+				}
+				else
+				{
+					fprintf(stderr, "MAX_INTERP_SIZE.\n");
+					fclose(file);
+					return 1;
+				}
+			}
+		}
+		else
+		{
+			Elf64_Phdr program_header;
+			fread(&program_header, program_header_size, 1, file);
+			print_program_header_info_64(&program_header);
+
+			if (program_header.p_type == PT_INTERP)
+			{
+				if (program_header.p_filesz <= MAX_INTERP_SIZE)
+				{
+					/* Guardo la posicion actual */
+					long current_pos = ftell(file);
+
+					fseek(file, program_header.p_offset, SEEK_SET);
+					fread(interp, program_header.p_filesz, 1, file);
+					interp[program_header.p_filesz] = '\0';
+					print_interpreter_info(interp);
+
+					/* Recupero la posicion guardada */
+					fseek(file, current_pos, SEEK_SET);
+				}
+				else
+				{
+					fprintf(stderr, "MAX_INTERP_SIZE.\n");
+					fclose(file);
+					return 1;
+				}
+			}
+		}
+	}
+
+	/* Section to Segment mapping */
+	if (elf_header.ehdr.ehdr32.e_ident[EI_CLASS] == ELFCLASS32)
+	{
+		is_32bit = 1;
+		if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2LSB)
+		{
+			createSectionToSegmentMapping32(file, &elf_header, is_32bit);
+		}
+		else if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+		{
+
+			createSectionToSegmentMapping32(file, &elf_header, is_32bit);
+		}
+	}
+	else if (elf_header.ehdr.ehdr64.e_ident[EI_CLASS] == ELFCLASS64)
+	{
+		is_32bit = 0;
+		createSectionToSegmentMapping64(file, &elf_header, is_32bit);
+	}
+
+
+
 
 	fclose(file);
-	return (0);
+	return 0;
+}
+
+void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_32bit)
+{
+	int i, j;
+	Elf64_Shdr shstrtab_header;
+	Elf64_Shdr section_headers[MAX_INTERP_SIZE];
+	char *shstrtab = NULL;
+	char sections[MAX_INTERP_SIZE] = "";
+
+	SectionToSegmentMapping *mapping = malloc(elf_header->ehdr.ehdr64.e_phnum * sizeof(SectionToSegmentMapping));
+
+	for (i = 0; i < elf_header->ehdr.ehdr64.e_phnum; i++)
+	{
+		mapping[i].segment_number = i;
+		strcpy(mapping[i].sections, "");
+	}
+
+	/* Obtener la tabla de cadenas de secciones */
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff) + elf_header->ehdr.ehdr64.e_shstrndx * sizeof(Elf64_Shdr), SEEK_SET);
+	fread(&shstrtab_header, sizeof(Elf64_Shdr), 1, file);
+
+	shstrtab = malloc(shstrtab_header.sh_size);
+	fseek(file, shstrtab_header.sh_offset, SEEK_SET);
+	fread(shstrtab, shstrtab_header.sh_size, 1, file);
+	/* Leer section headers */
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff), SEEK_SET);
+	fread(section_headers, sizeof(Elf64_Shdr), elf_header->ehdr.ehdr64.e_shnum, file);
+
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_phoff : elf_header->ehdr.ehdr64.e_phoff), SEEK_SET);
+	for (i = 0; i < (is_32bit ? elf_header->ehdr.ehdr32.e_phnum : elf_header->ehdr.ehdr64.e_phnum); i++)
+	{
+		Elf64_Phdr program_header;
+		fread(&program_header, sizeof(Elf64_Phdr), 1, file);
+		strcpy(sections, "");
+
+		for (j = 0; j < elf_header->ehdr.ehdr64.e_shnum; j++)
+		{
+			Elf64_Shdr section_header = section_headers[j];
+			/* Obtener el nombre de la sección utilizando la tabla de cadenas de secciones */
+			const char *section_name = shstrtab + section_header.sh_name;
+
+			if (section_header.sh_addr >= program_header.p_vaddr &&
+				section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
+			{
+				if (strlen(sections) > 0)
+				{
+					strcat(sections, " ");
+				}
+				strcat(sections, section_name);
+			}
+		}
+		strcpy(mapping[i].sections, sections);
+	}
+	free(shstrtab);
+	/* Imprimir la tabla de mapeo de secciones a segmentos */
+	printf("\n Section to Segment mapping:\n");
+	printf("  Segment Sections...\n");
+	for (i = 0; i < elf_header->ehdr.ehdr64.e_phnum; i++)
+	{
+		printf("   %02d     %s\n", mapping[i].segment_number, mapping[i].sections);
+	}
+	free(mapping);
+}
+
+void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_32bit)
+{
+	int i, j;
+	Elf32_Shdr shstrtab_header;
+	Elf32_Shdr section_headers[MAX_INTERP_SIZE];
+	char *shstrtab = NULL;
+	char sections[MAX_INTERP_SIZE] = "";
+
+	SectionToSegmentMapping *mapping = malloc(elf_header->ehdr.ehdr32.e_phnum * sizeof(SectionToSegmentMapping));
+
+	for (i = 0; i < elf_header->ehdr.ehdr32.e_phnum; i++)
+	{
+		mapping[i].segment_number = i;
+		strcpy(mapping[i].sections, "");
+	}
+
+	/* Obtener la tabla de cadenas de secciones */
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff) + elf_header->ehdr.ehdr32.e_shstrndx * sizeof(Elf32_Shdr), SEEK_SET);
+	fread(&shstrtab_header, sizeof(Elf32_Shdr), 1, file);
+
+	shstrtab = malloc(shstrtab_header.sh_size);
+	fseek(file, shstrtab_header.sh_offset, SEEK_SET);
+	fread(shstrtab, shstrtab_header.sh_size, 1, file);
+	/* Leer section headers */
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff), SEEK_SET);
+	fread(section_headers, sizeof(Elf32_Shdr), elf_header->ehdr.ehdr32.e_shnum, file);
+
+	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_phoff : elf_header->ehdr.ehdr64.e_phoff), SEEK_SET);
+	for (i = 0; i < (is_32bit ? elf_header->ehdr.ehdr32.e_phnum : elf_header->ehdr.ehdr64.e_phnum); i++)
+	{
+		Elf32_Phdr program_header;
+		fread(&program_header, sizeof(Elf32_Phdr), 1, file);
+		strcpy(sections, "");
+
+		for (j = 0; j < elf_header->ehdr.ehdr32.e_shnum; j++)
+		{
+			Elf32_Shdr section_header = section_headers[j];
+			/* Obtener el nombre de la sección utilizando la tabla de cadenas de secciones */
+			const char *section_name = shstrtab + section_header.sh_name;
+
+			if (section_header.sh_addr >= program_header.p_vaddr &&
+				section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
+			{
+				if (strlen(sections) > 0)
+				{
+					strcat(sections, " ");
+				}
+				strcat(sections, section_name);
+			}
+		}
+		strcpy(mapping[i].sections, sections);
+	}
+	free(shstrtab);
+	/* Imprimir la tabla de mapeo de secciones a segmentos */
+	printf("\n Section to Segment mapping:\n");
+	printf("  Segment Sections...\n");
+	for (i = 0; i < elf_header->ehdr.ehdr32.e_phnum; i++)
+	{
+		printf("   %02d     %s\n", mapping[i].segment_number, mapping[i].sections);
+	}
+	free(mapping);
+}
+
+
+
+
+
+
+void print_interpreter_info(const char *interp)
+{
+    printf("      [Requesting program interpreter: %s]\n", interp);
+}
+
+void print_elf_info(ElfHeader *elf_header, int is_32bit)
+{
+	printf("Elf file type is %s\n", getElfTypeName(is_32bit ? elf_header->ehdr.ehdr32.e_type : elf_header->ehdr.ehdr64.e_type));
+
+	if (is_32bit)
+	{
+		printf("Entry point 0x%x\n", elf_header->ehdr.ehdr32.e_entry);
+		printf("There are %d program headers, starting at offset %ld\n\n",
+		is_32bit ? elf_header->ehdr.ehdr32.e_phnum : elf_header->ehdr.ehdr64.e_phnum,
+		is_32bit ? (long)elf_header->ehdr.ehdr32.e_phoff : (long)elf_header->ehdr.ehdr64.e_phoff);
+
+	printf("Program Headers:\n");
+	printf("  Type           Offset   VirtAddr   PhysAddr  FileSiz  MemSiz  Flg Align\n");
+
+	}
+	else
+	{
+		printf("Entry point 0x%1lx\n", elf_header->ehdr.ehdr64.e_entry);
+		printf("There are %d program headers, starting at offset %ld\n\n",
+		is_32bit ? elf_header->ehdr.ehdr32.e_phnum : elf_header->ehdr.ehdr64.e_phnum,
+		is_32bit ? (long)elf_header->ehdr.ehdr32.e_phoff : (long)elf_header->ehdr.ehdr64.e_phoff);
+
+	printf("Program Headers:\n");
+	printf("  Type           Offset   VirtAddr           PhysAddr           FileSiz  MemSiz   Flg Align\n");
+	}
+}
+
+const char *getElfTypeName(uint16_t e_type)
+{
+	switch (e_type)
+	{
+	case ET_NONE: return "NONE";
+	case ET_REL: return "REL";
+	case ET_EXEC: return "EXEC (Executable file)";
+	case ET_DYN: return "DYN";
+	case ET_CORE: return "CORE";
+	default: return "UNKNOWN";
+	}
+}
+
+const char *getProgramHeaderTypeName32(uint32_t p_type)
+{
+	switch (p_type)
+	{
+	case PT_NULL: return "NULL";
+	case PT_LOAD: return "LOAD";
+	case PT_DYNAMIC: return "DYNAMIC";
+	case PT_INTERP: return "INTERP";
+	case PT_NOTE: return "NOTE";
+	case PT_SHLIB: return "SHLIB";
+	case PT_PHDR: return "PHDR";
+	case PT_TLS: return "TLS";
+	default: return "UNKNOWN";
+	}
+}
+const char *getProgramHeaderTypeName64(uint64_t p_type)
+{
+	switch (p_type)
+	{
+	case PT_NULL: return "NULL";
+	case PT_LOAD: return "LOAD";
+	case PT_DYNAMIC: return "DYNAMIC";
+	case PT_INTERP: return "INTERP";
+	case PT_NOTE: return "NOTE";
+	case PT_SHLIB: return "SHLIB";
+	case PT_PHDR: return "PHDR";
+	case PT_TLS: return "TLS";
+	case PT_GNU_EH_FRAME: return "GNU_EH_FRAME";
+	case PT_GNU_STACK: return "GNU_STACK";
+	case PT_GNU_RELRO: return "GNU_RELRO";
+	default: return "UNKNOWN";
+	}
+}
+
+void print_program_header_info_32(Elf32_Phdr *program_header)
+{
+	printf("  %-14s 0x%06x 0x%08x 0x%08x 0x%05x 0x%05x %c%c%c %#x\n",
+		getProgramHeaderTypeName32(program_header->p_type),
+		program_header->p_offset,
+		program_header->p_vaddr,
+		program_header->p_paddr,
+		program_header->p_filesz,
+		program_header->p_memsz,
+		(program_header->p_flags & PF_R) ? 'R' : ' ',
+		(program_header->p_flags & PF_W) ? 'W' : ' ',
+		(program_header->p_flags & PF_X) ? 'E' : ' ',
+		program_header->p_align);
+}
+
+
+void print_program_header_info_64(Elf64_Phdr *program_header)
+{
+	printf("  %-14s 0x%06lx 0x%016lx 0x%016lx 0x%06lx 0x%06lx %c%c%c 0x%01lx\n",
+		getProgramHeaderTypeName64(program_header->p_type),
+		(unsigned long)program_header->p_offset,
+		(unsigned long)program_header->p_vaddr,
+		(unsigned long)program_header->p_paddr,
+		(unsigned long)program_header->p_filesz,
+		(unsigned long)program_header->p_memsz,
+		(program_header->p_flags & PF_R) ? 'R' : ' ',
+		(program_header->p_flags & PF_W) ? 'W' : ' ',
+		(program_header->p_flags & PF_X) ? 'E' : ' ',
+		(unsigned long)program_header->p_align);
+}
+
+/**
+ * read_elf32_be_prog - Convert a 32-bit ELF header from big-endian to host
+ * byte order.
+ * This function takes a pointer to a 32-bit ELF header big-endian byte order
+ * and converts various header fields to the host byte order. It is used to
+ * ensure
+ * correct interpretation of the header on the host system.
+ *
+ * @phdr: A pointer to a 32-bit program header in big-endian byte order.
+ */
+void read_elf32_be_prog(Elf32_Phdr *phdr)
+{
+	phdr->p_type = my_be32toh(phdr->p_type);
+	phdr->p_offset = my_be32toh(phdr->p_offset);
+	phdr->p_vaddr = my_be32toh(phdr->p_vaddr);
+	phdr->p_paddr = my_be32toh(phdr->p_paddr);
+	phdr->p_filesz = my_be32toh(phdr->p_filesz);
+	phdr->p_memsz = my_be32toh(phdr->p_memsz);
+	phdr->p_flags = my_be32toh(phdr->p_flags);
+	phdr->p_align = my_be32toh(phdr->p_align);
 }
 
 /**
@@ -73,206 +440,4 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr)
 	ehdr->e_shentsize = my_be16toh(ehdr->e_shentsize);
 	ehdr->e_shnum = my_be16toh(ehdr->e_shnum);
 	ehdr->e_shstrndx = my_be16toh(ehdr->e_shstrndx);
-}
-
-/**
- * read_elf32_be_section - Convert a 32-bit ELF section header from big-endian
- * to host byte order.
- * This function takes a pointer to a 32-bit ELF section header in big-endian
- * byte order
- * and converts various section header fields to the host byte order.It is used
- * to ensure
- * correct interpretation of the section header on the host system.
- *
- * @section_header32: pointer to a 32-bit ELF section header in big-endian
- * byte order.
- */
-void read_elf32_be_section(Elf32_Shdr *section_header32)
-{
-	section_header32->sh_name = my_be32toh(section_header32->sh_name);
-	section_header32->sh_type = my_be32toh(section_header32->sh_type);
-	section_header32->sh_addr = my_be32toh(section_header32->sh_addr);
-	section_header32->sh_offset = my_be32toh(section_header32->sh_offset);
-	section_header32->sh_size = my_be32toh(section_header32->sh_size);
-	section_header32->sh_entsize = my_be32toh(section_header32->sh_entsize);
-	section_header32->sh_flags = my_be32toh(section_header32->sh_flags);
-	section_header32->sh_link = my_be32toh(section_header32->sh_link);
-	section_header32->sh_info = my_be32toh(section_header32->sh_info);
-	section_header32->sh_addralign = my_be32toh(section_header32->sh_addralign);
-}
-
-/**
- * read_elf32_be_prog - Convert a 32-bit ELF header from big-endian to host
- * byte order.
- * This function takes a pointer to a 32-bit ELF header big-endian byte order
- * and converts various header fields to the host byte order. It is used to
- * ensure
- * correct interpretation of the header on the host system.
- *
- * @phdr: A pointer to a 32-bit program header in big-endian byte order.
- */
-void read_elf32_be_prog(Elf32_Phdr *phdr)
-{
-	phdr->p_type = my_be32toh(phdr->p_type);
-	phdr->p_offset = my_be32toh(phdr->p_offset);
-	phdr->p_vaddr = my_be32toh(phdr->p_vaddr);
-	phdr->p_paddr = my_be32toh(phdr->p_paddr);
-	phdr->p_filesz = my_be32toh(phdr->p_filesz);
-	phdr->p_memsz = my_be32toh(phdr->p_memsz);
-	phdr->p_flags = my_be32toh(phdr->p_flags);
-	phdr->p_align = my_be32toh(phdr->p_align);
-}
-
-/**
-* set_prog_names - Retrieve the section names string table from an ELF file
-*
-* This function seeks the section names string table in ELF file and returns
-* a pointer to it.It can handle both 32-bit and 64-bit ELF files, adjusting its
-* behavior based on the provided parameters.
-*
-* @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
-* @file: A pointer to the open ELF file.
-* @elf_header32: The 32-bit ELF header (if applicable).
-* @elf_header64: The 64-bit ELF header (if applicable).
-*
-* Return: A pointer to the section names string table.
-*/
-char *set_prog_names(int is_32bits, FILE *file, Elf_Ehdr elf_header)
-{
-	Elf_Phdr prog_header;
-	char *program_names = NULL;
-
-	if (is_32bits)
-	{
-		/* 32 bits Small Endian */
-		if (elf_header.elf_header32.e_ident[EI_DATA] == ELFDATA2LSB)
-		{
-			/* Store sections names  */
-			program_names = get_program_name(prog_header, file, elf_header, 1, 0);
-		}
-		/* 32 bits Big Endian */
-		if (elf_header.elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
-		{
-			/* read with conversion for big endian */
-			read_elf32_be_prog(&prog_header.prog_header32);
-			program_names = get_program_name(prog_header, file, elf_header, 1, 1);
-		}
-	}
-	else /* 64 bits */
-		program_names = get_program_name(prog_header, file, elf_header, 0, 0);
-	return (program_names);
-}
-
-/**
- * loop_print - Iterate through and print information about ELF section headers
- *
- * This function iterates through the section headers of an ELF (Executable and
- * Linkable Format) file, reading and printing details such as section names,
- * types,
- * addresses, offsets, sizes, and other attributes. It can handle both 32-bit
- * and 64-bit ELF files.
- *
- * @is_32bits: Indicates whether the ELF file is 32-bit (true) or 64-bit (false)
- * @file: A pointer to the open ELF file.
- * @elf_header32: The 32-bit ELF header (if applicable).
- * @elf_header64: The 64-bit ELF header (if applicable).
- * @section_names: A pointer to the section names string table.
- */
-void loop_print2(int is_32bits, FILE *file, Elf_Ehdr elf_header)
-{
-	int index = 0;
-
-	if (is_32bits)
-	{
-		for (index = 0; index < elf_header.elf_header32.e_phnum; index++)
-		{
-			Elf32_Phdr prog_header32;
-			/* Store program header */
-			fread(&prog_header32, sizeof(Elf32_Phdr), 1, file);
-
-			/* convert program header for big endian */
-			if (elf_header.elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
-				read_elf32_be_prog(&prog_header32);
-
-			print_Program_Info_32bits(prog_header32);
-			print_interp32(prog_header32, file);
-		}
-	}
-	else
-	{
-		Elf64_Phdr prog_header64;
-
-		for (index = 0; index < elf_header.elf_header64.e_phnum; index++)
-		{
-			fread(&prog_header64, sizeof(Elf64_Phdr), 1, file);
-
-			print_Program_Info_64bits(prog_header64);
-			print_interp64(prog_header64, file);
-		}
-	}
-}
-
-int print_interp32(Elf32_Phdr prog_header32, FILE *file)
-{
-	char interp[MAX_INTERP_SIZE];
-	if (prog_header32.p_type == PT_INTERP)
-	{
-		if (prog_header32.p_filesz <= MAX_INTERP_SIZE)
-		{
-			/* Guardo la posicion actual */
-			long current_pos = ftell(file);
-
-			/* Mover el puntero posicio del programa intérprete */
-			fseek(file, prog_header32.p_offset, SEEK_SET);
-
-			/* Leer el programa intérprete en la matriz interp */
-			fread(interp, prog_header32.p_filesz, 1, file);
-			interp[prog_header32.p_filesz] = '\0';
-
-			printf("      [Requesting program interpreter: %s]\n", interp);
-
-			/* Recupero la posicion guardada */
-			fseek(file, current_pos, SEEK_SET);
-		}
-		else
-		{
-			fprintf(stderr, "MAX_INTERP_SIZE.\n");
-			fclose(file);
-			return 1;
-		}
-	}
-	return (0);
-}
-
-int print_interp64(Elf64_Phdr prog_header64, FILE *file)
-{
-	char interp[MAX_INTERP_SIZE];
-
-	if (prog_header64.p_type == PT_INTERP)
-	{
-		if (prog_header64.p_filesz <= MAX_INTERP_SIZE)
-		{
-			/* Guardo la posicion actual */
-			long current_pos = ftell(file);
-
-			/* Mover el puntero posicio del programa intérprete */
-			fseek(file, prog_header64.p_offset, SEEK_SET);
-
-			/* Leer el programa intérprete en la matriz interp */
-			fread(interp, prog_header64.p_filesz, 1, file);
-			interp[prog_header64.p_filesz] = '\0';
-
-			printf("      [Requesting program interpreter: %s]\n", interp);
-
-			/* Recupero la posicion guardada */
-			fseek(file, current_pos, SEEK_SET);
-		}
-		else
-		{
-			fprintf(stderr, "MAX_INTERP_SIZE.\n");
-			fclose(file);
-			return 1;
-		}
-	}
-	return (0);
 }
