@@ -279,8 +279,10 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 	{
 		printf("   %02d     %s", mapping[i].segment_number, mapping[i].sections);
 		if (mapping[i].sections)
+		{
 			if (!isspace(mapping[i].sections))
 				printf(" ");
+		}
 		printf("\n");
 	}
 	free(mapping);
