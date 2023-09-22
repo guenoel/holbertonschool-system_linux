@@ -210,7 +210,11 @@ void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_3
 	printf("  Segment Sections...\n");
 	for (i = 0; i < elf_header->ehdr.ehdr64.e_phnum; i++)
 	{
-		printf("   %02d     %s\n", mapping[i].segment_number, mapping[i].sections);
+		printf("   %02d     %s", mapping[i].segment_number, mapping[i].sections);
+		if (mapping[i].sections)
+			if (!isspace(mapping[i].sections))
+				printf(" ");
+		printf("\n");
 	}
 	free(mapping);
 }
@@ -273,7 +277,11 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 	printf("  Segment Sections...\n");
 	for (i = 0; i < elf_header->ehdr.ehdr32.e_phnum; i++)
 	{
-		printf("   %02d     %s\n", mapping[i].segment_number, mapping[i].sections);
+		printf("   %02d     %s", mapping[i].segment_number, mapping[i].sections);
+		if (mapping[i].sections)
+			if (!isspace(mapping[i].sections))
+				printf(" ");
+		printf("\n");
 	}
 	free(mapping);
 }
