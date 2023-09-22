@@ -23,11 +23,19 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+
+
 	/* Leer el encabezado ELF principal */
 	fread(&elf_header, sizeof(ElfHeader), 1, file);
 	/* Verificar si es un archivo ELF de 32 o 64 bits */
 	if (elf_header.ehdr.ehdr32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
+
+		if (elf_header.ehdr.ehdr32.e_phoff == 0)
+		{
+			printf("\nThere are no program headers in this file.\n");
+			return (0);
+		}
 		is_32bit = 1;
 		if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2LSB)
 		{
@@ -39,6 +47,11 @@ int main(int argc, char *argv[])
 	}
 	else if (elf_header.ehdr.ehdr64.e_ident[EI_CLASS] == ELFCLASS64)
 	{
+		if (elf_header.ehdr.ehdr64.e_phoff == 0)
+		{
+			printf("\nThere are no program headers in this file.\n");
+			return (0);
+		}
 		is_32bit = 0;
 	}
 	else
@@ -85,6 +98,7 @@ int main(int argc, char *argv[])
 
 					/* Recupero la posicion guardada */
 					fseek(file, current_pos, SEEK_SET);
+					
 				}
 				else
 				{
@@ -125,7 +139,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	/* Section to Segment mapping */
+	
+	/* Section to Segment mapping cucu*/
 	if (elf_header.ehdr.ehdr32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		is_32bit = 1;
@@ -135,7 +150,6 @@ int main(int argc, char *argv[])
 		}
 		else if (elf_header.ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
 		{
-
 			createSectionToSegmentMapping32(file, &elf_header, is_32bit);
 		}
 	}
@@ -160,7 +174,7 @@ void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_3
 	char *shstrtab = NULL;
 	char sections[MAX_INTERP_SIZE] = "";
 
-	SectionToSegmentMapping *mapping = malloc(elf_header->ehdr.ehdr64.e_phnum * sizeof(SectionToSegmentMapping));
+	SectionToSegmentMapping *mapping = (SectionToSegmentMapping *)malloc(elf_header->ehdr.ehdr64.e_phnum * sizeof(SectionToSegmentMapping));
 
 	for (i = 0; i < elf_header->ehdr.ehdr64.e_phnum; i++)
 	{
@@ -172,7 +186,7 @@ void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_3
 	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff) + elf_header->ehdr.ehdr64.e_shstrndx * sizeof(Elf64_Shdr), SEEK_SET);
 	fread(&shstrtab_header, sizeof(Elf64_Shdr), 1, file);
 
-	shstrtab = malloc(shstrtab_header.sh_size);
+	shstrtab = (char *)malloc(shstrtab_header.sh_size);
 	fseek(file, shstrtab_header.sh_offset, SEEK_SET);
 	fread(shstrtab, shstrtab_header.sh_size, 1, file);
 	/* Leer section headers */
@@ -191,9 +205,13 @@ void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_3
 			Elf64_Shdr section_header = section_headers[j];
 			/* Obtener el nombre de la sección utilizando la tabla de cadenas de secciones */
 			const char *section_name = shstrtab + section_header.sh_name;
+			/* Omitir la asignación de estas secciones específicas */
+			if (strcmp(section_name, ".gnu_debuglink") == 0 || strcmp(section_name, ".shstrtab") == 0 || strcmp(section_name, ".tm_clone_table") == 0)
+			{
+				continue;
+			}
 
-			if (section_header.sh_addr >= program_header.p_vaddr &&
-				section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
+			if (section_header.sh_addr >= program_header.p_vaddr && section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
 			{
 				if (strlen(sections) > 0)
 				{
@@ -202,22 +220,30 @@ void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_3
 				strcat(sections, section_name);
 			}
 		}
-		strcpy(mapping[i].sections, sections);
+		if (strlen(sections) > 0)
+		{
+			strcpy(mapping[i].sections, sections);
+		}
 	}
+
 	free(shstrtab);
 	/* Imprimir la tabla de mapeo de secciones a segmentos */
 	printf("\n Section to Segment mapping:\n");
 	printf("  Segment Sections...\n");
 	for (i = 0; i < elf_header->ehdr.ehdr64.e_phnum; i++)
 	{
-		printf("   %02d     %s", mapping[i].segment_number, mapping[i].sections);
-		if (mapping[i].sections)
-			if (!isspace(mapping[i].sections))
-				printf(" ");
-		printf("\n");
+		if (strlen(mapping[i].sections) > 0)
+		{
+			printf("   %02d     %s \n", mapping[i].segment_number, mapping[i].sections);
+		}
+		else
+		{
+			printf("   %02d     \n", mapping[i].segment_number);
+		}
 	}
 	free(mapping);
 }
+
 
 void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_32bit)
 {
@@ -227,7 +253,7 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 	char *shstrtab = NULL;
 	char sections[MAX_INTERP_SIZE] = "";
 
-	SectionToSegmentMapping *mapping = malloc(elf_header->ehdr.ehdr32.e_phnum * sizeof(SectionToSegmentMapping));
+	SectionToSegmentMapping *mapping = (SectionToSegmentMapping *)malloc(elf_header->ehdr.ehdr32.e_phnum * sizeof(SectionToSegmentMapping));
 
 	for (i = 0; i < elf_header->ehdr.ehdr32.e_phnum; i++)
 	{
@@ -237,30 +263,48 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 
 	/* Obtener la tabla de cadenas de secciones */
 	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff) + elf_header->ehdr.ehdr32.e_shstrndx * sizeof(Elf32_Shdr), SEEK_SET);
-	fread(&shstrtab_header, sizeof(Elf32_Shdr), 1, file);
 
-	shstrtab = malloc(shstrtab_header.sh_size);
+	fread(&shstrtab_header, sizeof(Elf32_Shdr), 1, file);
+	if (elf_header->ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+		read_elf32_be_section(&shstrtab_header);
+
+	shstrtab = (char *)malloc(shstrtab_header.sh_size);
 	fseek(file, shstrtab_header.sh_offset, SEEK_SET);
 	fread(shstrtab, shstrtab_header.sh_size, 1, file);
+	
 	/* Leer section headers */
 	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_shoff : elf_header->ehdr.ehdr64.e_shoff), SEEK_SET);
 	fread(section_headers, sizeof(Elf32_Shdr), elf_header->ehdr.ehdr32.e_shnum, file);
-
+	
 	fseek(file, (is_32bit ? elf_header->ehdr.ehdr32.e_phoff : elf_header->ehdr.ehdr64.e_phoff), SEEK_SET);
 	for (i = 0; i < (is_32bit ? elf_header->ehdr.ehdr32.e_phnum : elf_header->ehdr.ehdr64.e_phnum); i++)
 	{
 		Elf32_Phdr program_header;
 		fread(&program_header, sizeof(Elf32_Phdr), 1, file);
+		if (elf_header->ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+			read_elf32_be_prog(&program_header);
 		strcpy(sections, "");
 
 		for (j = 0; j < elf_header->ehdr.ehdr32.e_shnum; j++)
 		{
-			Elf32_Shdr section_header = section_headers[j];
-			/* Obtener el nombre de la sección utilizando la tabla de cadenas de secciones */
-			const char *section_name = shstrtab + section_header.sh_name;
+			Elf32_Shdr section_header;
+			const char *section_name;
 
-			if (section_header.sh_addr >= program_header.p_vaddr &&
-				section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
+			section_header = section_headers[j];
+			if (elf_header->ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2MSB)
+				read_elf32_be_section(&section_header);
+			/* Obtener el nombre de la sección utilizando la tabla de cadenas de secciones */
+			section_name = shstrtab + section_header.sh_name;
+			/* Omitir la asignación de estas secciones específicas */
+			if (elf_header->ehdr.ehdr32.e_ident[EI_DATA] == ELFDATA2LSB)
+			{
+				if (strcmp(section_name, ".gnu_debuglink") == 0 || strcmp(section_name, ".shstrtab") == 0 || strcmp(section_name, ".tm_clone_table") == 0)
+				{
+					continue;
+				}
+			}
+
+			if (section_header.sh_addr >= program_header.p_vaddr && section_header.sh_addr + section_header.sh_size <= program_header.p_vaddr + program_header.p_memsz)
 			{
 				if (strlen(sections) > 0)
 				{
@@ -268,8 +312,12 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 				}
 				strcat(sections, section_name);
 			}
+			
 		}
-		strcpy(mapping[i].sections, sections);
+		if (strlen(sections) > 0)
+		{
+			strcpy(mapping[i].sections, sections);
+		}
 	}
 	free(shstrtab);
 	/* Imprimir la tabla de mapeo de secciones a segmentos */
@@ -277,16 +325,27 @@ void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_3
 	printf("  Segment Sections...\n");
 	for (i = 0; i < elf_header->ehdr.ehdr32.e_phnum; i++)
 	{
-		printf("   %02d     %s", mapping[i].segment_number, mapping[i].sections);
-		if (mapping[i].sections)
+		if (strlen(mapping[i].sections) > 0)
 		{
-			if (!isspace(mapping[i].sections))
-				printf(" ");
+			printf("   %02d     %s \n", mapping[i].segment_number, mapping[i].sections);
 		}
-		printf("\n");
+		else
+		{
+			printf("   %02d     \n", mapping[i].segment_number);
+		}
 	}
 	free(mapping);
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -300,7 +359,7 @@ void print_interpreter_info(const char *interp)
 
 void print_elf_info(ElfHeader *elf_header, int is_32bit)
 {
-	printf("Elf file type is %s\n", getElfTypeName(is_32bit ? elf_header->ehdr.ehdr32.e_type : elf_header->ehdr.ehdr64.e_type));
+	printf("\nElf file type is %s\n", getElfTypeName(is_32bit ? elf_header->ehdr.ehdr32.e_type : elf_header->ehdr.ehdr64.e_type));
 
 	if (is_32bit)
 	{
@@ -310,7 +369,7 @@ void print_elf_info(ElfHeader *elf_header, int is_32bit)
 		is_32bit ? (long)elf_header->ehdr.ehdr32.e_phoff : (long)elf_header->ehdr.ehdr64.e_phoff);
 
 	printf("Program Headers:\n");
-	printf("  Type           Offset   VirtAddr   PhysAddr  FileSiz  MemSiz  Flg Align\n");
+	printf("  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align\n");
 
 	}
 	else
@@ -332,7 +391,7 @@ const char *getElfTypeName(uint16_t e_type)
 	case ET_NONE: return "NONE";
 	case ET_REL: return "REL";
 	case ET_EXEC: return "EXEC (Executable file)";
-	case ET_DYN: return "DYN";
+	case ET_DYN: return "DYN (Shared object file)";
 	case ET_CORE: return "CORE";
 	default: return "UNKNOWN";
 	}
@@ -350,9 +409,14 @@ const char *getProgramHeaderTypeName32(uint32_t p_type)
 	case PT_SHLIB: return "SHLIB";
 	case PT_PHDR: return "PHDR";
 	case PT_TLS: return "TLS";
+	case PT_GNU_EH_FRAME: return "GNU_EH_FRAME";
+	case PT_GNU_STACK: return "GNU_STACK";
+	case PT_GNU_RELRO: return "GNU_RELRO";
+	case 0x6464E550:return ("LOOS+464e550");
+	case PT_IA_64_UNWIND: return "PT_SUNW_UNWIND";
 	default: return "UNKNOWN";
 	}
-}
+ }
 const char *getProgramHeaderTypeName64(uint64_t p_type)
 {
 	switch (p_type)
@@ -450,4 +514,30 @@ void read_elf32_be_header(Elf32_Ehdr *ehdr)
 	ehdr->e_shentsize = my_be16toh(ehdr->e_shentsize);
 	ehdr->e_shnum = my_be16toh(ehdr->e_shnum);
 	ehdr->e_shstrndx = my_be16toh(ehdr->e_shstrndx);
+}
+
+/**
+ * read_elf32_be_section - Convert a 32-bit ELF section header from big-endian
+ * to host byte order.
+ * This function takes a pointer to a 32-bit ELF section header in big-endian
+ * byte order
+ * and converts various section header fields to the host byte order.It is used
+ * to ensure
+ * correct interpretation of the section header on the host system.
+ *
+ * @section_header32: pointer to a 32-bit ELF section header in big-endian
+ * byte order.
+ */
+void read_elf32_be_section(Elf32_Shdr *section_header32)
+{
+	section_header32->sh_name = my_be32toh(section_header32->sh_name);
+	section_header32->sh_type = my_be32toh(section_header32->sh_type);
+	section_header32->sh_addr = my_be32toh(section_header32->sh_addr);
+	section_header32->sh_offset = my_be32toh(section_header32->sh_offset);
+	section_header32->sh_size = my_be32toh(section_header32->sh_size);
+	section_header32->sh_entsize = my_be32toh(section_header32->sh_entsize);
+	section_header32->sh_flags = my_be32toh(section_header32->sh_flags);
+	section_header32->sh_link = my_be32toh(section_header32->sh_link);
+	section_header32->sh_info = my_be32toh(section_header32->sh_info);
+	section_header32->sh_addralign = my_be32toh(section_header32->sh_addralign);
 }

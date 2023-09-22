@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
-#include <ctype.h>
 
 
 /* ------------------- Task 0-hreadelf.c ----------------------------------*/
