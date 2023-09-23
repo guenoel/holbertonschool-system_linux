@@ -193,20 +193,30 @@ typedef struct
 } SectionToSegmentMapping;
 
 
-/* Functions 2-hreadelf.c*/
-void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_32bit);
-void select_type_elf_file(FILE* file, ElfHeader* elf_header, int is_32bit);
 
-void print_mapping32(SectionToSegmentMapping *mapping, int num_segments);
-int print_program_info(FILE *file, ElfHeader elf_header, int is_32bit);
+/* Functions 2-hreadelf.c*/
+void select_type_elf_file(FILE* file, ElfHeader* elf_header, int is_32bit);
+int print_program_info32(FILE *file, ElfHeader elf_header);
+int print_program_info64(FILE *file, ElfHeader elf_header);
 void check_command(int argc, char *argv[]);
+void check_open_file(FILE *file);
+
+/* Functions 2-hreadelf_mapping32.c*/
+void createSectionToSegmentMapping32(FILE *file, ElfHeader *elf_header, int is_32bit);
+void print_mapping32(SectionToSegmentMapping *mapping, int num_segments);
 
 /* Functions 2-hreadelf_mapping64.c*/
 void createSectionToSegmentMapping64(FILE *file, ElfHeader *elf_header, int is_32bit);
 void calculateSectionsInSegment64(FILE *file, ElfHeader *elf_header, int is_32bit, Elf64_Shdr *section_headers, SectionToSegmentMapping *mapping);
 void readSectionHeaders(FILE *file, Elf64_Shdr *section_headers, ElfHeader *elf_header, int is_32bit);
-char* getSectionNameTable(FILE *file, Elf64_Shdr shstrtab_header);
+char *getSectionNameTable(FILE *file, Elf64_Shdr shstrtab_header);
+char *getSectionNameTable32(FILE *file, Elf32_Shdr shstrtab_header);
 void print_mapping64(SectionToSegmentMapping *mapping, int num_segments);
+void sections_selection(ElfHeader *elf_header, Elf32_Shdr *section_headers, Elf32_Phdr program_header, char *shstrtab, SectionToSegmentMapping *mapping, int i);
+
+void calculateSectionsInSegment32(FILE *file, ElfHeader *elf_header,
+int is_32bit, Elf32_Shdr *section_headers, SectionToSegmentMapping *mapping);
+void readSectionHeaders32(FILE *file, Elf32_Shdr *section_headers, ElfHeader *elf_header, int is_32bit);
 
 /* Functions 2-hreadelf_print.c*/
 
@@ -224,5 +234,8 @@ void print_program_header_info_32(Elf32_Phdr *program_header);
 void read_elf32_be_prog(Elf32_Phdr *phdr);
 void read_elf32_be_header(Elf32_Ehdr *ehdr);
 void read_elf32_be_section(Elf32_Shdr *section_header32);
+
+
+
 
 #endif /* HELF_H */
