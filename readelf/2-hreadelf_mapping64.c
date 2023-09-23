@@ -1,9 +1,6 @@
 #include "hreadelf.h"
 
 
-
-
-
 /**
 * createSectionToSegmentMapping64 - Create a mapping between sections and
 * segments in a 64-bit ELF file.

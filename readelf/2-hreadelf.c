@@ -81,6 +81,19 @@ void select_type_elf_file(FILE *file, ElfHeader *elf_header, int is_32bit)
 }
 
 
+/**
+* print_program_info32 - Print information about program headers in
+* a 32-bit ELF file.
+* This function reads and prints information about program headers
+* in a 32-bit ELF file.
+* It iterates through the program headers, reads their contents, and extracts
+* relevant information such as the program type and interpreter details.
+*
+* @file: A pointer to the open ELF file.
+* @elf_header: An ElfHeader structure containing ELF header information.
+* Return:  Returns 0 on success, and 1 if there is an error
+* (e.g., exceeding MAX_INTERP_SIZE).
+*/
 int print_program_info32(FILE *file, ElfHeader elf_header)
 {
 	int i = 0;
@@ -118,6 +131,20 @@ int print_program_info32(FILE *file, ElfHeader elf_header)
 	return (0);
 }
 
+/**
+* print_program_info64 - Print info about program headers in a 64-bit ELF file.
+*
+* This function reads and prints information about program headers in a
+* 64-bit ELF file.
+* It iterates through the program headers, reads their contents, and extracts
+* relevant information such as the program type and interpreter details.
+*
+* @file:  A pointer to the open ELF file.
+* @elf_header: An ElfHeader structure containing ELF header information.
+*
+* Return: Returns 0 on success, and 1 if there is an error
+* (e.g., exceeding MAX_INTERP_SIZE).
+*/
 int print_program_info64(FILE *file, ElfHeader elf_header)
 {
 	int i = 0;
@@ -152,33 +179,3 @@ int print_program_info64(FILE *file, ElfHeader elf_header)
 	}
 	return (0);
 }
-
-/**
-* check_command - Check the validity of command-line arguments.
-* This function checks if the number of command-line arguments is correct
-* (exactly 2 arguments expected).
-* If the number of arguments is not 2, it prints an error message to standard
-* error and exits the program with an error code.
-*
-* @argc: The number of command-line arguments.
-* @argv: An array of strings containing the command-line arguments.
-*/
-void check_command(int argc, char *argv[])
-{
-	if (argc != 2)
-	{
-		fprintf(stderr, "Uso: %s elf_filename\n", argv[0]);
-		exit(1);
-	}
-}
-
-void check_open_file(FILE *file)
-{
-	if (file == NULL)
-	{
-		perror("No se puede abrir el archivo");
-		exit(1);
-	}
-}
-
-

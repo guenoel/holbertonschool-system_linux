@@ -102,7 +102,6 @@ void print_Section_Info_64bits(int index, Elf64_Shdr section_header,
 void print_header(int is_32bit, FILE *file, Elf32_Ehdr elf_header32,
 					Elf64_Ehdr elf_header64, off_t section_table_offset)
 {
-	/* Imprimir la información sobre la tabla de secciones y encabezado */
 	printf("There are %u section headers, starting at offset 0x%lx:\n\n",
 		is_32bit ? elf_header32.e_shnum : elf_header64.e_shnum,
 		section_table_offset);

@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	Elf64_Ehdr elf_header64;
 	off_t section_table_offset;
 	char *section_names = NULL;
-	int is_32bit = 0; /* Variable para detectar si es un archivo de 32 bits */
+	int is_32bit = 0;
 
 	if (argc != 2)
 		return (EXIT_SUCCESS);
@@ -27,23 +27,18 @@ int main(int argc, char *argv[])
 		perror("No se puede abrir el archivo");
 		return (1);
 	}
-	/* Leer el encabezado ELF principal */
 	fread(&elf_header32, sizeof(Elf32_Ehdr), 1, file);
-	/* Verificar si es un archivo ELF de 32 bits */
 	if (elf_header32.e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		is_32bit = 1;
-		/* Detectar el endianness del archivo ELF de 32 bits */
 		if (elf_header32.e_ident[EI_DATA] == ELFDATA2MSB)
 			read_elf32_be_header(&elf_header32);
 	}
 	else
 	{
-		/* Retroceder al principio del archivo si no es un archivo de 32 bits */
 		fseek(file, 0, SEEK_SET);
 		fread(&elf_header64, sizeof(Elf64_Ehdr), 1, file);
 	}
-	/* Leer la posición de la tabla de secciones */
 	section_table_offset = is_32bit ? elf_header32.e_shoff : elf_header64.e_shoff;
 	section_names = set_section_names(is_32bit, file, elf_header32, elf_header64);
 	print_header(is_32bit, file, elf_header32, elf_header64,

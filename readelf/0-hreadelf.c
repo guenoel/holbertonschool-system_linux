@@ -65,7 +65,6 @@ void print_elf32_header(Elf32_Header *elf32)
  * OS/ABI, ABI version, file type, machine architecture, entry point address,
  * program headers, section headers, flags, and more.
  */
-
 void print_elf64_header(Elf64_Header *elf64)
 {
 	int i;
@@ -84,7 +83,6 @@ void print_elf64_header(Elf64_Header *elf64)
 			elf64->ehdr.e_version);
 	printf("  OS/ABI:                            %s\n",
 			get_osabi_name(elf64->ehdr.e_ident[EI_OSABI]));
-	/* printf("  ABI Version:        %d\n", elf64->ehdr.e_ident[EI_OSABI]); */
 	printf("  ABI Version:                       %s\n",
 			get_osabi_version(elf64->ehdr.e_ident[EI_OSABI]));
 	printf("  Type:                              %s\n",
@@ -110,13 +108,16 @@ void print_elf64_header(Elf64_Header *elf64)
 	printf("  Section header string table index: %d\n", elf64->ehdr.e_shstrndx);
 }
 
-
+/**
+ * read_elf32_be_header0 - convert elf header big endian.
+ * @elf32: Pointer to an ELF32 header structure.
+ * @file: file
+ */
 void read_elf32_be_header0(Elf32_Header *elf32, FILE *file)
 {
-	/* Leer el encabezado ELF de 32 bits en formato big-endian */
+	/* Read header ELF 32 bits in format big-endian */
 	fread(elf32, sizeof(Elf32_Header), 1, file);
 
-	/* Ajustar valores si es necesario debido a la conversión de big-endian */
 	elf32->ehdr.e_type = my_be16toh(elf32->ehdr.e_type);
 	elf32->ehdr.e_machine = my_be16toh(elf32->ehdr.e_machine);
 	elf32->ehdr.e_version = my_be32toh(elf32->ehdr.e_version);
@@ -132,6 +133,13 @@ void read_elf32_be_header0(Elf32_Header *elf32, FILE *file)
 	elf32->ehdr.e_shstrndx = my_be16toh(elf32->ehdr.e_shstrndx);
 }
 
+/**
+ * main - main
+ * @argc: number of arguments
+ * @argv: array of strings
+ *
+ * Return: 0 if OK
+ */
 int main(int argc, char *argv[])
 {
 	FILE *file = NULL;
@@ -150,25 +158,25 @@ int main(int argc, char *argv[])
 		perror("Error opening the file");
 		return (1);
 	}
-	fseek(file, EI_DATA, SEEK_SET);/*valor EI_DATA little-endian o big-endian */
+	fseek(file, EI_DATA, SEEK_SET);/* value EI_DATA little-endian or big-endian */
 	fread(&data, sizeof(uint8_t), 1, file);
-	fseek(file, 0, SEEK_SET); /* Mover puntero del archivo vuelta al principio */
+	fseek(file, 0, SEEK_SET); /* Move pointer at the begining of the file */
 	if (data == ELFDATA2MSB)
 	{
-		read_elf32_be_header0(&elf32, file);/* ELF formato big-endian 32 bits */
+		read_elf32_be_header0(&elf32, file);/* ELF format big-endian 32 bits */
 		print_elf32_header(&elf32);
 	}
 	else
 	{
-		fread(&elf32, sizeof(Elf32_Header), 1, file);/*No big de 32 o 64 bits*/
+		fread(&elf32, sizeof(Elf32_Header), 1, file);/*No big de 32 or 64 bits*/
 		if (elf32.ehdr.e_ident[EI_CLASS] == ELFCLASS64)
 		{
-			fseek(file, 0, SEEK_SET);/* Archivo ELF de 64 bits */
+			fseek(file, 0, SEEK_SET);/* File ELF 64 bits */
 			fread(&elf64, sizeof(Elf64_Header), 1, file);
 			print_elf64_header(&elf64);
 		}
 		else if (elf32.ehdr.e_ident[EI_CLASS] == ELFCLASS32)
-			print_elf32_header(&elf32);/*ELF de 32 bitsformato little-endian */
+			print_elf32_header(&elf32);/*ELF 32 bits format little-endian */
 		else
 			fprintf(stderr, "Format not supported\n");
 		}
