@@ -9,10 +9,9 @@ asm_strlen:
     mov rcx, 0    ; init loop counter to 0
     mov rax, 0    ; init rax (that contain return value) to 0
 
-
 .loop_count:
     cmp byte [rdi + rcx], 0 ; comp char with 0 (null byte)
-    je .end_of_string       ; if flag ZF (result of previous comp) is 0 (true) go to end_of_string
+    je .end_of_string       ; if result of previous comp is 0 (flag ZF) go to end_of_string
     inc rcx                 ; counter for loop or string
     jmp .loop_count         ; go to the same function again
 
