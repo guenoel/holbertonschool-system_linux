@@ -21,11 +21,15 @@ asm_strncmp:
 
 .equal:
     xor rax, rax       ; set return value to 0
-    cmp al, 0          ; check if end of first string
-    je .end            ; if equal go to end
     inc rdi            ; increment byte (letter) in rsi
     inc rsi            ; increment byte (letter) in rsi
     inc rcx            ; increment loop counter
+
+    cmp al, 0          ; check if end of first string
+    je .end            ; if equal go to end
+    cmp bl, 0          ;
+    je .end            ;
+
     cmp rcx, rdx       ; compare loop counter with third argument
     jnz .loop          ; back to loop
 
