@@ -12,7 +12,7 @@ asm_strstr:
     xor rbx, rbx       ; init rdx == dl (that will contain a letter of needle) to 0
     mov dl, byte [rsi] ;
     cmp dl, 0          ;
-    je .end            ;
+    jz .not_found      ;
 
 .init_needle:
     xor rcx, rcx       ; init rdx (that will contain loop counter) to 0
