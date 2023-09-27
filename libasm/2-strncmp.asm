@@ -50,6 +50,6 @@ asm_strncmp:
     jmp .end           ;
 
 .str2_end:
-    cmp bl, 0          ;
+    cmp al, 0          ;
     jnz .more          ;
     jmp .end           ;
