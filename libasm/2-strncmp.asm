@@ -14,6 +14,12 @@ asm_strncmp:
 .loop:
     mov al, byte [rdi] ; Load the byte at the address pointed to by rdi in al
 	mov bl, byte [rsi] ; Load the byte at the address pointed to by rsi in bl
+
+    cmp al, 0          ; check if end of first string
+    je .str1_end       ; if equal go to str1_end
+    cmp bl, 0          ; check if end of second string
+    je .str2_end       ; if equal go to str2_end
+
     cmp al, bl         ; compare those 2 values
     jl .less           ; if result is less jump less
     jg .more           ; if result is more jump more
@@ -24,11 +30,6 @@ asm_strncmp:
     inc rdi            ; increment byte (letter) in rsi
     inc rsi            ; increment byte (letter) in rsi
     inc rcx            ; increment loop counter
-
-    cmp al, 0          ; check if end of first string
-    je .str1_end       ; if equal go to end
-    cmp bl, 0          ;
-    je .str2_end       ;
 
     cmp rcx, rdx       ; compare loop counter with third argument
     jnz .loop          ; back to loop
