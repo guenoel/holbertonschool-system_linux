@@ -12,8 +12,8 @@ asm_strncmp:
     jl .end            ; if less than 1 then n <= 0
 
 .loop:
-    mov al, byte [rdi] ; Load the byte at the address pointed to by rdi in al
-	mov bl, byte [rsi] ; Load the byte at the address pointed to by rsi in bl
+    mov al, byte [rdi + rcx] ; Load the byte at the address pointed to by rdi in al
+	mov bl, byte [rsi + rcx] ; Load the byte at the address pointed to by rsi in bl
 
     cmp al, 0          ; check if end of first string
     je .str1_end       ; if equal go to str1_end
@@ -27,10 +27,7 @@ asm_strncmp:
 
 .equal:
     xor rax, rax       ; set return value to 0
-    inc rdi            ; increment byte (letter) in rsi
-    inc rsi            ; increment byte (letter) in rsi
     inc rcx            ; increment loop counter
-
     cmp rcx, rdx       ; compare loop counter with third argument
     jnz .loop          ; back to loop
 
