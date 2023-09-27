@@ -26,9 +26,9 @@ asm_strncmp:
     inc rcx            ; increment loop counter
 
     cmp al, 0          ; check if end of first string
-    je .end            ; if equal go to end
+    je .str1_end       ; if equal go to end
     cmp bl, 0          ;
-    je .end            ;
+    je .str2_end       ;
 
     cmp rcx, rdx       ; compare loop counter with third argument
     jnz .loop          ; back to loop
@@ -45,3 +45,13 @@ asm_strncmp:
 .more:
     mov rax, 1         ; return value to 1
     jmp .end           ; jump to end
+
+.str1_end:
+    cmp bl, 0          ;
+    jnz .more          ;
+    jmp .end           ;
+
+.str2_end:
+    cmp bl, 0          ;
+    jnz .less          ;
+    jmp .end           ;
