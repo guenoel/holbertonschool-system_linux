@@ -13,7 +13,7 @@ asm_strstr:
     cmp rsi, 0         ;
     jz .not_found      ;
     cmp rdi, 0         ;
-    jz .not_found      ;
+    jz .empty_needle   ;
 
 .init_needle:
     xor rcx, rcx       ; init rcx (that will contain loop counter) to 0
@@ -45,6 +45,10 @@ asm_strstr:
     cmp bl, dl         ; compare those 2 values
     je .loop_equal     ; if result is equal jump equal
     jmp .init_needle   ;
+
+.empty_needle:
+    lea rax, [rdi]     ;
+    jmp .end           ;
 
 .not_found:
     xor rax, rax       ; set rax to 0
