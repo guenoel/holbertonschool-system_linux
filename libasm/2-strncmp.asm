@@ -46,10 +46,10 @@ asm_strncmp:
 
 .str1_end:
     cmp bl, 0          ;
-    jnz .more          ;
+    jnz .less          ;
     jmp .end           ;
 
 .str2_end:
     cmp bl, 0          ;
-    jnz .less          ;
+    jnz .more          ;
     jmp .end           ;
