@@ -9,8 +9,10 @@ asm_strstr:
 
     xor rax, rax       ; init rax (that will contain return value) to 0
     xor rdx, rdx       ; init rdx == dl (that will contain a letter of needle) to 0
-    xor rbx, rbx       ; init rdx == dl (that will contain a letter of needle) to 0
+    xor rbx, rbx       ; init rdx == dl (that will contain a letter of haystack) to 0
     cmp rsi, 0         ;
+    jz .not_found      ;
+    cmp rdi, 0         ;
     jz .not_found      ;
 
 .init_needle:
