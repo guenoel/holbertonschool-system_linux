@@ -12,7 +12,10 @@ asm_strstr:
     xor rbx, rbx       ; init rdx == dl (that will contain a letter of haystack) to 0
     mov dl, byte [rsi] ;
     cmp dl, 0          ;
-    jz .not_found      ;
+    je .not_found      ;
+    mov bl, byte [rdi] ;
+    cmp bl, 0          ;
+    je .not_found      ;
 
 .init_needle:
     xor rcx, rcx       ; init rcx (that will contain loop counter) to 0
