@@ -10,6 +10,8 @@ asm_strstr:
     xor rax, rax       ; init rax (that will contain return value) to 0
     xor rdx, rdx       ; init rdx == dl (that will contain a letter of needle) to 0
     xor rbx, rbx       ; init rdx == dl (that will contain a letter of needle) to 0
+    cmp rsi, 0         ;
+    je .end            ;
 
 .init_needle:
     xor rcx, rcx       ; init rdx (that will contain loop counter) to 0
