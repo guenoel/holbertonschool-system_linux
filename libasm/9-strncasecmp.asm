@@ -23,7 +23,7 @@ asm_strncasecmp:
 
 .sec_str_check:
 	mov bl, byte [rsi + rcx] ; same comment as previous reference for second string
-    cmp bl, 'A'        ; 
+    cmp bl, 'A'        ;
     jl .compare_chars  ;
     cmp bl, 'Z'        ;
     jg .compare_chars  ;
