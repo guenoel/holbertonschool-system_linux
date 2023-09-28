@@ -19,6 +19,7 @@
  */
 int main(void)
 {
+	printf("%lu\n", asm_strcspn(S1, A2));
 	assert(strcspn(S2, A1) == asm_strcspn(S2, A1));
 	assert(strcspn(S2, A2) == asm_strcspn(S2, A2));
 	assert(strcspn(S3, A1) == asm_strcspn(S3, A1));
