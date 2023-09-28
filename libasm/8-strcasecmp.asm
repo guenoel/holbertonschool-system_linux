@@ -4,10 +4,10 @@ BITS 64
     section .text
 
 asm_strcasecmp:
-    push rbp        ; save base pointer before mov
-    mov rbp, rsp    ; move top of stack to base pointer
-    xor rbx, rbx    ;
-    xor rax, rax    ; init rax (that contain return value) to 0
+    push rbp           ; save base pointer before mov
+    mov rbp, rsp       ; move top of stack to base pointer
+    xor rbx, rbx       ;
+    xor rax, rax       ; init rax (that contain return value) to 0
 
 .loop:
 ;.fst_str_check:
