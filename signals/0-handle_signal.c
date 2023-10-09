@@ -12,6 +12,10 @@ int handle_signal(void)
 	return (0);
 }
 
+/**
+ * sigint_handler - print message
+ * print a sentence with sig number
+*/
 void sigint_handler(int signum)
 {
 	printf("Gotcha! [%d]\n", signum);
