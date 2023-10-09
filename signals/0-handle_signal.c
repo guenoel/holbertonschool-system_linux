@@ -15,6 +15,7 @@ int handle_signal(void)
 /**
  * sigint_handler - print message
  * print a sentence with sig number
+ * @signum: number of the signal
 */
 void sigint_handler(int signum)
 {
