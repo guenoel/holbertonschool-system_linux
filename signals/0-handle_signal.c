@@ -1,7 +1,8 @@
 #include "signals.h"
 
 /**
- * handle_signal - catch signal and execute function with signal number in parameter
+ * handle_signal - catch signal
+ * catch signal and execute function with signal number in parameter
  * Return: 0 if ok -1 if error
 */
 int handle_signal(void)
