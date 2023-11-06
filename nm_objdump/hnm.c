@@ -101,7 +101,7 @@ void process_symbols_32bit(Elf32_Ehdr *ehdr, void *map, const char *filename)
 			char *symbol_name = strtab_data + symtab[i].st_name;
 			const char *symbol_type_str = get_symbol_type_32(symtab[i].st_info, symtab[i], shdr);
 
-			if (symbol_type_str[0] != 'U')
+			if (symbol_type_str[0] != 'U' && symbol_type_str[0] != 'w')
 			{
 				printf("%08x %s %s\n", symtab[i].st_value, symbol_type_str, symbol_name);
 			}
