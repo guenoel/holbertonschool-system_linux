@@ -1,4 +1,4 @@
-# C - ELF: nm/objdump
+<h1 align="center">C - ELF: nm/objdump</h1>
 
 ## Resources
 
