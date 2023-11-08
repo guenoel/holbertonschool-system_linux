@@ -33,6 +33,33 @@ uint32_t my_be32toh(uint32_t value)
 }
 
 /**
+ * read_elf32_be_header - Convert a 32-bit ELF header from big-endian to host
+ * byte order.
+ * This function takes a pointer to a 32-bit ELF header big-endian byte order
+ * and converts various header fields to the host byte order. It is used to
+ * ensure
+ * correct interpretation of the header on the host system.
+ *
+ * @ehdr: A pointer to a 32-bit ELF header in big-endian byte order.
+ */
+void read_elf32_be_header(Elf32_Ehdr *ehdr)
+{
+	ehdr->e_type = my_be16toh(ehdr->e_type);
+	ehdr->e_machine = my_be16toh(ehdr->e_machine);
+	ehdr->e_version = my_be32toh(ehdr->e_version);
+	ehdr->e_entry = my_be32toh(ehdr->e_entry);
+	ehdr->e_phoff = my_be32toh(ehdr->e_phoff);
+	ehdr->e_shoff = my_be32toh(ehdr->e_shoff);
+	ehdr->e_flags = my_be32toh(ehdr->e_flags);
+	ehdr->e_ehsize = my_be16toh(ehdr->e_ehsize);
+	ehdr->e_phentsize = my_be16toh(ehdr->e_phentsize);
+	ehdr->e_phnum = my_be16toh(ehdr->e_phnum);
+	ehdr->e_shentsize = my_be16toh(ehdr->e_shentsize);
+	ehdr->e_shnum = my_be16toh(ehdr->e_shnum);
+	ehdr->e_shstrndx = my_be16toh(ehdr->e_shstrndx);
+}
+
+/**
  * read_elf32_be_section - Convert a 32-bit ELF section header from big-endian
  * to host byte order.
  * This function takes a pointer to a 32-bit ELF section header in big-endian
@@ -133,9 +160,17 @@ int print_sections_32(Elf32_Ehdr *ehdr, const char *filename)
 		return (1);
 	}
 
+	/* if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+		read_elf32_be_header(ehdr); */
+
+	printf("\ne_shnum: %d e_shoff: %d\n\n", ehdr->e_shnum, ehdr->e_shoff);
+
 	fseek(file, ehdr->e_shoff + ehdr->e_shstrndx *
 					ehdr->e_shentsize, SEEK_SET);
-	section_names = get_section_name32(section_header32, file);
+	if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+		section_names = get_section_name32_big(section_header32, file);
+	else
+		section_names = get_section_name32(section_header32, file);
 
 	fseek(file, 0, SEEK_SET);
 	fseek(file, ehdr->e_shoff, SEEK_SET);
@@ -147,12 +182,14 @@ int print_sections_32(Elf32_Ehdr *ehdr, const char *filename)
 		fread(&section_header32, sizeof(Elf32_Shdr), 1, file);
 
 		if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
+		{
 			read_elf32_be_section(&section_header32);
-
+			printf("sh_name: %d\n\n", section_header32.sh_name);
+		}
 		if (section_header32.sh_name)
 		{
 			name = section_names + section_header32.sh_name;
-			printf("%s\n", name);
+			printf("Contents of section %s:\n", name);
 		}
 	}
 	fclose(file);
@@ -177,6 +214,7 @@ int print_sections_64(Elf64_Ehdr *ehdr, const char *filename)
 					ehdr->e_shentsize, SEEK_SET);
 	section_names = get_section_name64(section_header64, file);
 
+
 	fseek(file, 0, SEEK_SET);
 	fseek(file, ehdr->e_shoff, SEEK_SET);
 
@@ -184,11 +222,11 @@ int print_sections_64(Elf64_Ehdr *ehdr, const char *filename)
 	{
 		char *name = "";
 
-		fread(&section_header64, sizeof(Elf32_Shdr), 1, file);
+		fread(&section_header64, sizeof(Elf64_Shdr), 1, file);
 		if (section_header64.sh_name)
 		{
 			name = section_names + section_header64.sh_name;
-			printf("%s\n", name);
+			printf("Contents of section %s:\n", name);
 		}
 	}
 	fclose(file);
@@ -290,6 +328,7 @@ int analyze_32bit_elf(Elf32_Ehdr *ehdr, const char *filename)
 	}
 	else if (ehdr->e_ident[EI_DATA] == ELFDATA2MSB)
 	{
+		/* read_elf32_be_header(ehdr); */
 		print_elf_header_32(ehdr, filename);
 	}
 	else
@@ -345,12 +384,12 @@ int analyze_file(const char *filename)
 	ehdr32 = (Elf32_Ehdr *)map;
 	ehdr64 = (Elf64_Ehdr *)map;
 
-	if (ehdr32->e_ident[EI_CLASS] == ELFCLASS32)
-	{
-		analyze_32bit_elf(ehdr32, filename);
-	}
-	else if (ehdr64->e_ident[EI_CLASS] == ELFCLASS64)
+	/* if (ehdr32->e_ident[EI_DATA] == ELFDATA2MSB)
+		read_elf32_be_header(ehdr32); */
 
+	if (ehdr32->e_ident[EI_CLASS] == ELFCLASS32)
+		analyze_32bit_elf(ehdr32, filename);
+	else if (ehdr64->e_ident[EI_CLASS] == ELFCLASS64)
 		analyze_64bit_elf(ehdr64, filename);
 	else
 	{
