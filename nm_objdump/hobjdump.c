@@ -120,13 +120,6 @@ void print_sections_32(Elf32_Ehdr *ehdr, int is_big_endian, void *map)
 			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
 			strcmp(section_name, ".rel.text") == 0 ||
 			strcmp(section_name, ".rel.data") == 0 ||
-			strcmp(section_name, ".rela.eh_frame") == 0 ||
-			strcmp(section_name, ".rela.debug_line") == 0 ||
-			strcmp(section_name, ".rela.debug_ranges") == 0 ||
-			strcmp(section_name, ".rela.debug_aranges") == 0 ||
-			strcmp(section_name, ".rela.debug_loc") == 0 ||
-			strcmp(section_name, ".rela.debug_info") == 0 ||
-			strcmp(section_name, ".rela.text.startup") == 0 ||
 			strcmp(section_name, ".strtab") == 0)
 			{
 			continue;
@@ -346,6 +339,9 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
 			strcmp(section_name, ".rel.text") == 0 ||
 			strcmp(section_name, ".rel.data") == 0 ||
+			strcmp(section_name, ".rela.eh_frame") == 0 ||
+			strncmp(section_name, ".rela.debug", 11) == 0 ||
+			strcmp(section_name, ".rela.text.startup") == 0 ||
 			strcmp(section_name, ".strtab") == 0)
 			{
 			continue;
