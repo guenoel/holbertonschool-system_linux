@@ -17,21 +17,16 @@ void print_hex_ascii_block(Elf64_Shdr *shdr, const unsigned char *data,
 	for (i = 0; i < size; i += 16)
 	{
 		int current_digits = 0;
-
 		unsigned long temp_addr = my_be32toh(shdr->sh_addr, is_big_endian) + i;
 
 		current_digits = sprintf(temp_buffer, "%lx", temp_addr);
 		if (current_digits > max_digits)
-		{
 			max_digits = current_digits;
-		}
 	}
-
 	for (i = 0; i < size; i += 16)
 	{
 		printf(" %0*x", max_digits, (int)(my_be32toh(shdr->sh_addr,
 			is_big_endian) + offset + i));
-
 		for (j = 0; j < 16; j++)
 		{
 			if (j % 4 == 0)
