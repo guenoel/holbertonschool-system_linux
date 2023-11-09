@@ -1,32 +1,32 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <elf.h>
 #include "hobjdump.h"
-
 
 void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 {
 	size_t section_size;
 	size_t i, j;
 	unsigned char *section_data;
+/* 	int max_digits = 4;
+	char temp_buffer[16]; */
 
 	section_data = (unsigned char *)(map + my_be32toh(shdr->sh_offset,
 	is_big_endian));
 	section_size = my_be32toh(shdr->sh_size, is_big_endian);
 
+/* 	for (i = 0; i < section_size; i += 16)
+	{
+		int current_digits = 0;
+
+		unsigned long temp_addr = my_be32toh(shdr->sh_addr, is_big_endian) + i;
+
+		current_digits = sprintf(temp_buffer, "%lx", temp_addr);
+		if (current_digits > max_digits) {
+			max_digits = current_digits;
+		}
+	} */
+
 	for (i = 0; i < section_size; i += 16)
 	{
-		if (my_be32toh(shdr->sh_addr, is_big_endian) == 0xf510)
-		{
-			printf(" %05x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
-		}
-		else
-		{
-			printf(" %04x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
-		}
+		printf(" %0*x", 4, (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
 
 		for (j = 0; j < 16; j++)
 		{
@@ -47,7 +47,9 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 				printf("  ");
 			}
 		}
+
 		printf("  ");
+
 		for (j = 0; j < 16; j++)
 		{
 			if (i + j < section_size)
@@ -91,16 +93,12 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 		is_big_endian);
 
 		/* Evita estas secciones */
-		if (strcmp(section_name, ".bss") == 0 ||
-			strcmp(section_name, ".shstrtab") == 0 ||
-			strcmp(section_name, ".symtab") == 0 ||
-			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
-			strcmp(section_name, ".rel.text") == 0 ||
-			strcmp(section_name, ".rel.data") == 0 ||
-			strcmp(section_name, ".rela.eh_frame") == 0 ||
-			strncmp(section_name, ".rela.debug", 11) == 0 ||
-			strcmp(section_name, ".rela.text.startup") == 0 ||
-			strcmp(section_name, ".strtab") == 0)
+		if ((!strncmp(section_name, ".rel", 4) && !current_section->sh_addr)
+			|| current_section->sh_type == SHT_SYMTAB
+			|| current_section->sh_type == SHT_NOBITS
+			|| (current_section->sh_type == SHT_STRTAB &&
+			strcmp(section_name, ".dynstr"))
+			)
 			{
 			continue;
 			}
