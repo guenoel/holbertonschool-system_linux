@@ -266,18 +266,24 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 	section_data = (unsigned char *)(map + my_be32toh(shdr->sh_offset, is_big_endian));
 	section_size = my_be32toh(shdr->sh_size, is_big_endian);
 
-	/* printf("%s\n", (char *)(map + my_be32toh(shdr->sh_name, is_big_endian))); */
-
 	for (i = 0; i < section_size; i += 16)
 	{
-		printf(" %04x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
+		if (my_be32toh(shdr->sh_addr, is_big_endian) == 0xf510)
+		{
+			printf(" %05x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
+		}
+		else
+		{
+			printf(" %04x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
+		}
+
 		for (j = 0; j < 16; j++)
 		{
 			if (i + j < section_size)
 			{
 				if (j % 4 == 0)
 				{
-					printf(" ");/* espacio entre bloques */
+					printf(" "); /* espacio entre bloques */
 				}
 				printf("%02x", section_data[i + j]);
 			}
@@ -285,7 +291,7 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 			{
 				if (j % 4 == 0)
 				{
-					printf(" ");/* espacio entre bloques */
+					printf(" "); /* espacio entre bloques */
 				}
 				printf("  ");
 			}
@@ -318,6 +324,8 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 }
 
 
+
+
 void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 {
 	int i;
@@ -333,16 +341,10 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 		char *section_name = string_table + my_be32toh(shdr[i].sh_name, is_big_endian);
 
 		/* Evita estas secciones */
-		if (strcmp(section_name, ".bss") == 0 ||
-			strcmp(section_name, ".shstrtab") == 0 ||
-			strcmp(section_name, ".symtab") == 0 ||
-			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
-			strcmp(section_name, ".rel.text") == 0 ||
-			strcmp(section_name, ".rel.data") == 0 ||
-			strcmp(section_name, ".rela.eh_frame") == 0 ||
-			strncmp(section_name, ".rela.debug", 11) == 0 ||
-			strcmp(section_name, ".rela.text.startup") == 0 ||
-			strcmp(section_name, ".strtab") == 0)
+		if ((!strncmp(section_name, ".rel", 4) && !shdr->sh_addr)
+			|| shdr->sh_type == SHT_SYMTAB
+			|| shdr->sh_type == SHT_NOBITS
+			|| shdr->sh_type == SHT_STRTAB)
 			{
 			continue;
 			}
@@ -417,3 +419,24 @@ int analyze_64bit_elf(Elf64_Ehdr *ehdr, const char *filename, void *map)
 
 	return (0);
 }
+
+	/* printf("e_ident[EI_MAG0]: 0x%02x\n", ehdr->e_ident[EI_MAG0]);
+	printf("e_ident[EI_MAG1]: 0x%02x\n", ehdr->e_ident[EI_MAG1]);
+	printf("e_ident[EI_MAG2]: 0x%02x\n", ehdr->e_ident[EI_MAG2]);
+	printf("e_ident[EI_MAG3]: 0x%02x\n", ehdr->e_ident[EI_MAG3]);
+	printf("e_ident[EI_CLASS]: 0x%02x\n", ehdr->e_ident[EI_CLASS]);
+	printf("e_ident[EI_DATA]: 0x%02x\n", ehdr->e_ident[EI_DATA]);
+	printf("e_ident[EI_VERSION]: 0x%02x\n", ehdr->e_ident[EI_VERSION]);
+	printf("e_type: 0x%04x\n", ehdr->e_type);
+	printf("e_machine: 0x%04x\n", ehdr->e_machine);
+	printf("e_version: 0x%08x\n", ehdr->e_version);
+	printf("e_entry: 0x%016lx\n", (unsigned long)ehdr->e_entry);
+	printf("e_phoff: 0x%016lx\n", (unsigned long)ehdr->e_phoff);
+	printf("e_shoff: 0x%016lx\n", (unsigned long)ehdr->e_shoff);
+	printf("e_flags: 0x%08x\n", ehdr->e_flags);
+	printf("e_ehsize: 0x%04x\n", ehdr->e_ehsize);
+	printf("e_phentsize: 0x%04x\n", ehdr->e_phentsize);
+	printf("e_phnum: 0x%04x\n", ehdr->e_phnum);
+	printf("e_shentsize: 0x%04x\n", ehdr->e_shentsize);
+	printf("e_shnum: 0x%04x\n", ehdr->e_shnum);
+	printf("e_shstrndx: 0x%04x\n", ehdr->e_shstrndx); */
