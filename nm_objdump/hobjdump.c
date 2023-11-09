@@ -120,6 +120,7 @@ void print_sections_32(Elf32_Ehdr *ehdr, int is_big_endian, void *map)
 			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
 			strcmp(section_name, ".rel.text") == 0 ||
 			strcmp(section_name, ".rel.data") == 0 ||
+			strcmp(section_name, ".rela.eh_frame") == 0 ||
 			strcmp(section_name, ".strtab") == 0)
 			{
 			continue;
@@ -321,6 +322,9 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 {
 	int i;
+	size_t section_size;
+	Elf64_Shdr *current_section;
+
 	Elf64_Shdr *shdr = (Elf64_Shdr *)((char *)map + my_be32toh(ehdr->e_shoff, is_big_endian));
 	char *string_table = (char *)map + my_be32toh(shdr[my_be16toh(ehdr->e_shstrndx, is_big_endian)].sh_offset, is_big_endian);
 
@@ -336,14 +340,20 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
 			strcmp(section_name, ".rel.text") == 0 ||
 			strcmp(section_name, ".rel.data") == 0 ||
-
 			strcmp(section_name, ".strtab") == 0)
 			{
 			continue;
 			}
 
-		printf("Contents of section %s:\n", section_name);
-		print_section_contents_64(&shdr[i], map, is_big_endian);
+		current_section = &shdr[i];
+
+		section_size = current_section->sh_size;
+
+		if (section_size > 0)
+		{
+			printf("Contents of section %s:\n", section_name);
+			print_section_contents_64(&shdr[i], map, is_big_endian);
+		}
 	}
 }
 
@@ -405,24 +415,3 @@ int analyze_64bit_elf(Elf64_Ehdr *ehdr, const char *filename, void *map)
 
 	return (0);
 }
-
-	/* printf("e_ident[EI_MAG0]: 0x%02x\n", ehdr->e_ident[EI_MAG0]);
-	printf("e_ident[EI_MAG1]: 0x%02x\n", ehdr->e_ident[EI_MAG1]);
-	printf("e_ident[EI_MAG2]: 0x%02x\n", ehdr->e_ident[EI_MAG2]);
-	printf("e_ident[EI_MAG3]: 0x%02x\n", ehdr->e_ident[EI_MAG3]);
-	printf("e_ident[EI_CLASS]: 0x%02x\n", ehdr->e_ident[EI_CLASS]);
-	printf("e_ident[EI_DATA]: 0x%02x\n", ehdr->e_ident[EI_DATA]);
-	printf("e_ident[EI_VERSION]: 0x%02x\n", ehdr->e_ident[EI_VERSION]);
-	printf("e_type: 0x%04x\n", ehdr->e_type);
-	printf("e_machine: 0x%04x\n", ehdr->e_machine);
-	printf("e_version: 0x%08x\n", ehdr->e_version);
-	printf("e_entry: 0x%016lx\n", (unsigned long)ehdr->e_entry);
-	printf("e_phoff: 0x%016lx\n", (unsigned long)ehdr->e_phoff);
-	printf("e_shoff: 0x%016lx\n", (unsigned long)ehdr->e_shoff);
-	printf("e_flags: 0x%08x\n", ehdr->e_flags);
-	printf("e_ehsize: 0x%04x\n", ehdr->e_ehsize);
-	printf("e_phentsize: 0x%04x\n", ehdr->e_phentsize);
-	printf("e_phnum: 0x%04x\n", ehdr->e_phnum);
-	printf("e_shentsize: 0x%04x\n", ehdr->e_shentsize);
-	printf("e_shnum: 0x%04x\n", ehdr->e_shnum);
-	printf("e_shstrndx: 0x%04x\n", ehdr->e_shstrndx); */
