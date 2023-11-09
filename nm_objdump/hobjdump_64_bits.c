@@ -95,7 +95,7 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 			|| current_section->sh_type == SHT_SYMTAB
 			|| current_section->sh_type == SHT_NOBITS
 			|| (current_section->sh_type == SHT_STRTAB &&
-			strcmp(section_name, ".dynstr"))
+			!strcmp(section_name, ".dynstr"))
 			)
 			{
 			continue;
