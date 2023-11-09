@@ -341,8 +341,8 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 
 		current_section = &shdr[i];
 
-/* 		printf("current_section->sh_addr: %lu\n", current_section->sh_addr);
-		printf("current_section->sh_type: %u\n", current_section->sh_type); */
+		/* printf("current_section->sh_addr: %lu\n", current_section->sh_addr); */
+		printf("current_section->sh_type: %u\n", current_section->sh_type);
 
 		/* Evita estas secciones */
 		if ((!strncmp(section_name, ".rel", 4) && !current_section->sh_addr)
