@@ -5,14 +5,14 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 	size_t section_size;
 	size_t i, j;
 	unsigned char *section_data;
-	int max_digits = 4;
-	char temp_buffer[16];
+/* 	int max_digits = 4;
+	char temp_buffer[16]; */
 
 	section_data = (unsigned char *)(map + my_be32toh(shdr->sh_offset,
 	is_big_endian));
 	section_size = my_be32toh(shdr->sh_size, is_big_endian);
 
-	for (i = 0; i < section_size; i += 16)
+/* 	for (i = 0; i < section_size; i += 16)
 	{
 		int current_digits = 0;
 
@@ -22,11 +22,11 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 		if (current_digits > max_digits) {
 			max_digits = current_digits;
 		}
-	}
+	} */
 
 	for (i = 0; i < section_size; i += 16)
 	{
-		printf(" %0*x", max_digits, (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
+		printf(" %0*x", 4, (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
 
 		for (j = 0; j < 16; j++)
 		{
