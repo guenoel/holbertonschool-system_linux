@@ -337,19 +337,23 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 
 	for (i = 1; i < my_be16toh(ehdr->e_shnum, is_big_endian); i++)
 	{
-
 		char *section_name = string_table + my_be32toh(shdr[i].sh_name, is_big_endian);
 
+		current_section = &shdr[i];
+
+/* 		printf("current_section->sh_addr: %lu\n", current_section->sh_addr);
+		printf("current_section->sh_type: %u\n", current_section->sh_type); */
+
 		/* Evita estas secciones */
-		if ((!strncmp(section_name, ".rel", 4) && !shdr->sh_addr)
-			|| shdr->sh_type == SHT_SYMTAB
-			|| shdr->sh_type == SHT_NOBITS
-			|| shdr->sh_type == SHT_STRTAB)
+		if ((!strncmp(section_name, ".rel", 4) && !current_section->sh_addr)
+			|| current_section->sh_type == SHT_SYMTAB
+			|| current_section->sh_type == SHT_NOBITS
+			|| current_section->sh_type == SHT_STRTAB)
 			{
 			continue;
 			}
 
-		current_section = &shdr[i];
+
 
 		section_size = current_section->sh_size;
 
