@@ -350,8 +350,6 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 			continue;
 			}
 
-
-
 		section_size = current_section->sh_size;
 
 		if (section_size > 0)
