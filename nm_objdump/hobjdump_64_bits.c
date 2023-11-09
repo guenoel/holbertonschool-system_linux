@@ -14,7 +14,7 @@ void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
 	for (i = 0; i < section_size; i += 16)
 	{
 		int current_digits = 0;
-		char temp_buffer[4096];
+		char temp_buffer[16384];
 
 		unsigned long temp_addr = my_be32toh(shdr->sh_addr, is_big_endian) + i;
 
