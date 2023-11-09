@@ -7,70 +7,66 @@
 #include "hobjdump.h"
 
 
-void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
+void print_hex_ascii_block(Elf64_Shdr *shdr, const unsigned char *data,
+							size_t offset, size_t size, int is_big_endian)
 {
-	size_t section_size;
 	size_t i, j;
-	unsigned char *section_data;
+	int max_digits = 4;
+	char temp_buffer[16];
 
-	section_data = (unsigned char *)(map + my_be32toh(shdr->sh_offset,
-	is_big_endian));
-	section_size = my_be32toh(shdr->sh_size, is_big_endian);
-
-	for (i = 0; i < section_size; i += 16)
+	for (i = 0; i < size; i += 16)
 	{
-		if (my_be32toh(shdr->sh_addr, is_big_endian) == 0xf510)
+		int current_digits = 0;
+
+		unsigned long temp_addr = my_be32toh(shdr->sh_addr, is_big_endian) + i;
+
+		current_digits = sprintf(temp_buffer, "%lx", temp_addr);
+		if (current_digits > max_digits)
 		{
-			printf(" %05x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
+			max_digits = current_digits;
 		}
-		else
-		{
-			printf(" %04x", (int)(my_be32toh(shdr->sh_addr, is_big_endian) + i));
-		}
+	}
+
+	for (i = 0; i < size; i += 16)
+	{
+		printf(" %0*x", max_digits, (int)(my_be32toh(shdr->sh_addr,
+			is_big_endian) + offset + i));
 
 		for (j = 0; j < 16; j++)
 		{
-			if (i + j < section_size)
-			{
-				if (j % 4 == 0)
-				{
-					printf(" "); /* espacio entre bloques */
-				}
-				printf("%02x", section_data[i + j]);
-			}
+			if (j % 4 == 0)
+				printf(" ");
+			if (i + j < size)
+				printf("%02x", data[offset + i + j]);
 			else
-			{
-				if (j % 4 == 0)
-				{
-					printf(" "); /* espacio entre bloques */
-				}
 				printf("  ");
-			}
 		}
 		printf("  ");
 		for (j = 0; j < 16; j++)
 		{
-			if (i + j < section_size)
+			if (i + j < size)
 			{
-				char c = section_data[i + j];
+				char c = data[offset + i + j];
 
-				if (c >= 32 && c <= 126)
-				{
-					printf("%c", c);
-				}
-				else
-				{
-					printf(".");
-				}
+				printf("%c", (c >= 32 && c <= 126) ? c : '.');
 			}
 			else
-			{
 				printf(" ");
-			}
 		}
 		printf("\n");
 	}
 }
+
+
+void print_section_contents_64(Elf64_Shdr *shdr, char *map, int is_big_endian)
+{
+	unsigned char *section_data = (unsigned char *)(map +
+	my_be32toh(shdr->sh_offset, is_big_endian));
+	size_t section_size = my_be32toh(shdr->sh_size, is_big_endian);
+
+	print_hex_ascii_block(shdr, section_data, 0, section_size, is_big_endian);
+}
+
 
 void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 {
@@ -91,20 +87,21 @@ void print_sections_64(Elf64_Ehdr *ehdr, int is_big_endian, void *map)
 		is_big_endian);
 
 		/* Evita estas secciones */
-		if ((!strncmp(section_name, ".rel", 4) && !current_section->sh_addr)
-			|| current_section->sh_type == SHT_SYMTAB
-			|| current_section->sh_type == SHT_NOBITS
-			|| (current_section->sh_type == SHT_STRTAB &&
-			!strcmp(section_name, ".dynstr"))
-			)
+		if (strcmp(section_name, ".bss") == 0 ||
+			strcmp(section_name, ".shstrtab") == 0 ||
+			strcmp(section_name, ".symtab") == 0 ||
+			strcmp(section_name, ".tm_clone_table") == 0 ||/* solaris */
+			strcmp(section_name, ".rel.text") == 0 ||
+			strcmp(section_name, ".rel.data") == 0 ||
+			strcmp(section_name, ".rela.eh_frame") == 0 ||
+			strncmp(section_name, ".rela.debug", 11) == 0 ||
+			strcmp(section_name, ".rela.text.startup") == 0 ||
+			strcmp(section_name, ".strtab") == 0)
 			{
 			continue;
 			}
-
 		current_section = &shdr[i];
-
 		section_size = current_section->sh_size;
-
 		if (section_size > 0)
 		{
 			printf("Contents of section %s:\n", section_name);
