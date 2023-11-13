@@ -30,10 +30,12 @@ void print_python_bytes(PyObject *p)
 	PyBytes_AsStringAndSize(p, &byte_string, &byte_size);
 	printf("  size: %zd\n", byte_size);
 	printf("  trying string: %s\n", byte_string);
-	printf("  first %zd bytes:", byte_size + 1);
+	/* Only display first 10 bytes max */
+	printf("  first %zd bytes:", byte_size <= 10 ? byte_size + 1 : 10);
 
 	/* Iterate through the bytes to print in hexadecimal */
-	for (int i = 0; i <= byte_size; i++)
+	/* Only display first 10 bytes max */
+	for (int i = 0; i <= byte_size && i < 10; i++)
 	{
 		printf(" %02hhx", byte_string[i]);
 	}
