@@ -30,7 +30,7 @@ void print_python_bytes(PyObject *p)
 	PyBytes_AsStringAndSize(p, &byte_string, &byte_size);
 	printf("  size: %zd\n", byte_size);
 	printf("  trying string: %s\n", byte_string);
-	printf("  first %zd bytes:", byte_size);
+	printf("  first %zd bytes:", byte_size + 1);
 
 	/* Iterate through the bytes to print in hexadecimal */
 	for (int i = 0; i <= byte_size; i++)
