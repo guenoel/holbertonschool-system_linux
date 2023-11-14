@@ -21,6 +21,7 @@ void print_python_list(PyObject *p)
 	if (!PyList_Check(p))
 	{
 		printf("  [ERROR] Invalid List Object\n");
+		fflush(stdout);
 		return;
 	}
 
@@ -32,6 +33,7 @@ void print_python_list(PyObject *p)
 	if (size == -1)
 	{
 		fprintf(stderr, "  [ERROR] Failed to get list size\n");
+		fflush(stdout);
 		return;
 	}
 
@@ -80,6 +82,7 @@ void print_python_bytes(PyObject *p)
 	if (!PyBytes_Check(p))
 	{
 		printf("  [ERROR] Invalid Bytes Object\n");
+		fflush(stdout);
 		return;
 	}
 
