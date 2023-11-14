@@ -45,5 +45,5 @@ void print_python_int(PyObject *p)
 	{
 		result = result * base + long_obj->ob_digit[i];
 	}
-	printf("%lu size: %ld\n", result, size);
+	printf("%lu\n", result);
 }
