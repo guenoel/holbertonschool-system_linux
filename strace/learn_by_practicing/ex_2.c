@@ -10,7 +10,11 @@ void function_print(pid_t child_pid)
 {
 	struct user_regs_struct regs;
 
-	if (ptrace(PTRACE_SYSCALL, child_pid, NULL, &regs))
+	if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
+	{
+		perror("ptrace");
+		exit(EXIT_FAILURE);
+	}
 	printf("%llu\n", regs.orig_rax);
 }
 
