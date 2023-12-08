@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 {
 	pid_t child_pid;
 
+	/* Disable buffering on stdout */
+	setvbuf(stdout, NULL, _IONBF, 0);
+
 	if (argc < 2)
 	{
 		/* No command-line arguments */
