@@ -11,7 +11,7 @@ void function_print(pid_t child_pid)
 	struct user_regs_struct regs;
 
 	if (ptrace(PTRACE_SYSCALL, child_pid, NULL, &regs))
-	printf("%u\n", regs.rax);
+	printf("%llu\n", regs.orig_rax);
 }
 
 void print_status(int status);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 		{
 			ptrace(PTRACE_SYSCALL, child_pid, NULL, NULL);
 			waitpid(child_pid, &status, 0);
-			if(WIFSTOPPED(status))
+			if (WIFSTOPPED(status))
 				function_print(child_pid);
 		}
 		if (WIFEXITED(status))
