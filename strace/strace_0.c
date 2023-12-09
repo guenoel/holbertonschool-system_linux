@@ -33,20 +33,16 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	/* Check if we're the child process */
-	if (child_pid == 0)
+	if (child_pid < 0)
+		exit(EXIT_FAILURE);
+	else if (child_pid == 0)
 	{
 		/* Child process */
-		if (ptrace(PTRACE_TRACEME, 0, NULL, NULL) == -1)
-		{
-			perror("ptrace");
-			exit(EXIT_FAILURE);
-		}
-
-		/* Execute the command */
-		execvp(argv[1], &argv[1]);
-		perror("execvp");
-		exit(EXIT_FAILURE);
+		ptrace(PTRACE_TRACEME, 0, 0, 0);
+		/* Stop the child process to allow the parent to detect it */
+		raise(SIGSTOP);
+		argv[argc] = NULL;
+		execvp(argv[1], argv + 1);
 	}
 	else
 	{
