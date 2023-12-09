@@ -11,9 +11,8 @@
 int main(int argc, char *argv[])
 {
 	pid_t child_pid;
-
-	/* Disable buffering on stdout */
-	setvbuf(stdout, NULL, _IONBF, 0);
+	int status, is_last_syscall;
+	struct user_regs_struct regs;
 
 	if (argc < 2)
 	{
@@ -49,31 +48,25 @@ int main(int argc, char *argv[])
 	else
 	{
 		/* Parent process */
-		int status;
-
-		waitpid(child_pid, &status, 0);
-
-		/* Trace the child using PTRACE_SINGLESTEP */
-		while (!WIFEXITED(status) && !WIFSIGNALED(status))
+		wait(&status);
+		/* Wait for the child to stop on its first instruction */
+		ptrace(PTRACE_SYSCALL, child_pid, 0, 0);
+		/* Main tracing loop */
+		for (is_last_syscall = 0; !WIFEXITED(status); is_last_syscall ^= 1)
 		{
-			ptrace(PTRACE_SYSCALL, child_pid, NULL, NULL);
-			waitpid(child_pid, &status, 0);
-			if (WIFSTOPPED(status))
-				print_syscall_num(child_pid);
+			wait(&status);
+			/* Get the registers of the child process */
+			ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
+			/* Print the system call number every other time */
+			if (is_last_syscall)
+			{
+				/* Get the system call number */
+				printf("%ld\n", (long)regs.orig_rax);
+			}
+
+			/* Continue the execution of the child process */
+			ptrace(PTRACE_SYSCALL, child_pid, 0, 0);
 		}
 	}
-
 	return (0);
-}
-
-void print_syscall_num(pid_t child_pid)
-{
-	struct user_regs_struct regs;
-
-	if (ptrace(PTRACE_GETREGS, child_pid, NULL, &regs) == -1)
-	{
-		perror("ptrace");
-		exit(EXIT_FAILURE);
-	}
-	printf("%lu\n", (long)regs.orig_rax);
 }

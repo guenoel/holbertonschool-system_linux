@@ -14,6 +14,4 @@
 #include <sys/reg.h>
 #include <signal.h>
 
-void print_syscall_num(pid_t child_pid);
-
 #endif /* __STRACE_H__ */
