@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
 	int status, is_last_syscall;
 	struct user_regs_struct regs;
 
+	/* Disable buffering on stdout */
+	setvbuf(stdout, NULL, _IONBF, 0);
+
 	if (argc < 2)
 	{
 		/* No command-line arguments */
