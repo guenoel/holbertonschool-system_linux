@@ -11,7 +11,7 @@
 int main(int argc, char *argv[])
 {
 	pid_t child_pid;
-	int status, is_last_syscall;
+	int status, is_last_syscall, flag = 0;
 	struct user_regs_struct regs;
 
 	/* Disable buffering on stdout */
@@ -59,8 +59,18 @@ int main(int argc, char *argv[])
 			/* Print the system call number every other time */
 			if (is_last_syscall)
 			{
+				if (flag)
+				{
+					printf("\n");
+					flag = 0;
+				}
 				/* Get the system call number */
-				printf("%s\n", (char *)syscalls_64_g[(unsigned long)regs.orig_rax].name);
+				printf("%s", (char *)syscalls_64_g[(unsigned long)regs.orig_rax].name);
+				/* no new line if syscall is write which is number 1 */
+				if (regs.orig_rax != 1)
+					printf("\n");
+				else
+					flag = 1;
 			}
 
 			/* Continue the execution of the child process */
