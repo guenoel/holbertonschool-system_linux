@@ -100,7 +100,7 @@ void traceSyscalls(pid_t child_pid)
 		if (!print_syscall_name && call_count)
 		{
 			syscall_number = user_registers.orig_rax;
-			printf("%s(", syscalls_64[syscall_number].name);
+			printf("%s(", syscalls_64_g[syscall_number].name);
 			print_params(&user_registers);
 		}
 
