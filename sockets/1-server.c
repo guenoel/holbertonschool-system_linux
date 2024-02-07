@@ -5,37 +5,37 @@
 
 /**
 * initialize_Server - Initialize the server
-* @server_addr: Server address structure
-* @server_socket: Server socket
+* @server_conf: Server address structure
+* @server_socket_fd: Server socket
 */
-void initialize_Server(struct sockaddr_in *server_addr, int *server_socket)
+void initialize_Server(struct sockaddr_in *server_conf, int *server_socket_fd)
 {
-	/* Initialize server_addr structure */
-	memset(server_addr, 0, sizeof(*server_addr));
+	/* Initialize server_conf structure */
+	memset(server_conf, 0, sizeof(*server_conf));
 
 	/* Create socket */
-	*server_socket = socket(AF_INET, SOCK_STREAM, 0);
-	if (*server_socket == -1)
+	*server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (*server_socket_fd == -1)
 	{
 		perror("Failed to create socket");
 		exit(EXIT_FAILURE);
 	}
 
 	/* Configure the server address structure */
-	server_addr->sin_family = AF_INET;
-	server_addr->sin_addr.s_addr = htonl(INADDR_ANY);
-	server_addr->sin_port = htons(12345);
+	server_conf->sin_family = AF_INET; /* AF_INET -> IPv4:port */
+	server_conf->sin_addr.s_addr = htonl(INADDR_ANY);
+	server_conf->sin_port = htons(12345);
 
 	/* Bind socket to address and port */
-	if (bind(*server_socket, (struct sockaddr *)server_addr,
-		sizeof(*server_addr)) < 0)
+	if (bind(*server_socket_fd, (struct sockaddr *)server_conf,
+		sizeof(*server_conf)) < 0)
 	{
 		perror("Failed to bind socket");
 		exit(EXIT_FAILURE);
 	}
 
 	/* Listen for incoming connections */
-	if (listen(*server_socket, 1) < 0)
+	if (listen(*server_socket_fd, 1) < 0)
 	{
 		perror("Failed to listen for incoming connections");
 		exit(EXIT_FAILURE);
@@ -47,9 +47,9 @@ void initialize_Server(struct sockaddr_in *server_addr, int *server_socket)
 
 /**
 * accept_Connection - Accept incoming connections
-* @server_socket: Server socket
+* @server_socket_fd: Server socket
 */
-void accept_Connection(int server_socket)
+void accept_Connection(int server_socket_fd)
 {
 	while (1)
 	{
@@ -59,8 +59,9 @@ void accept_Connection(int server_socket)
 		/* Buffer to store the client's IP address */
 		char client_ip[INET6_ADDRSTRLEN];
 
-		/* Accept incoming connection */
-		client_socket = accept(server_socket, (struct sockaddr *)&client_addr,
+		/* Accept incoming connection : create new socket for client and */
+		/* store infos in it */
+		client_socket = accept(server_socket_fd, (struct sockaddr *)&client_addr,
 								&client_addr_len);
 		if (client_socket < 0)
 		{
@@ -90,17 +91,17 @@ void accept_Connection(int server_socket)
 */
 int main(void)
 {
-	int server_socket;
-	struct sockaddr_in server_addr;
+	int server_socket_fd;
+	struct sockaddr_in server_conf;
 
 	/* Initialize the server */
-	initialize_Server(&server_addr, &server_socket);
+	initialize_Server(&server_conf, &server_socket_fd);
 
 	/* Accept incoming connections continuously */
-	accept_Connection(server_socket);
+	accept_Connection(server_socket_fd);
 
-	/* Note: The server will not reach this point in the current implementation */
-	close(server_socket);
+	/* Note: The server will not reach this point in current implementation */
+	close(server_socket_fd);
 
 	return (0);
 }
