@@ -9,7 +9,6 @@
 int connect_to_server(char *host, char *port)
 {
 	int client_socket_fd;
-	#include <netdb.h> // Add the necessary header file
 
 	struct addrinfo hints, *res, *curr_res;
 
