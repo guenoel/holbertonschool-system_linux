@@ -9,42 +9,34 @@
 int connect_to_server(char *host, char *port)
 {
 	int client_socket_fd;
-
 	struct addrinfo hints, *res, *curr_res;
 
 	/* Initialize hints structure */
 	memset(&hints, 0, sizeof(struct addrinfo));
-
 	/* Set up hints data structure */
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
-
 	/* Resolve host name to IP address */
 	if (getaddrinfo(host, port, &hints, &res) != 0)
 	{
 		fprintf(stderr, "Invalid host address: %s\n", host);
 		return (-1);
 	}
-
 	/* Iterate through the list of addresses and try to connect */
 	for (curr_res = res;
 		curr_res != NULL;
 		curr_res = curr_res->ai_next)
 	{
-		client_socket_fd = socket(curr_res->ai_family,
-									curr_res->ai_socktype,
+		client_socket_fd = socket(curr_res->ai_family, curr_res->ai_socktype,
 									curr_res->ai_protocol);
 		if (client_socket_fd == -1)
 			continue;
 
-		if (connect(client_socket_fd,
-					curr_res->ai_addr,
-					curr_res->ai_addrlen) != -1)
+		if (connect(client_socket_fd, curr_res->ai_addr,
+										curr_res->ai_addrlen) != -1)
 			break; /* Successfully connected */
-
 		close(client_socket_fd);
 	}
-
 	/* Check if connection was successful */
 	if (curr_res == NULL)
 	{
