@@ -12,7 +12,16 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <netdb.h>
-
 #include <ctype.h>
+
+struct addrinfo
+{
+    int ai_family;
+    int ai_socktype;
+    int ai_protocol;
+    socklen_t ai_addrlen;
+    struct sockaddr *ai_addr;
+    struct addrinfo *ai_next;
+};
 
 #endif /* _SOCKET_*/

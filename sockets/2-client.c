@@ -1,4 +1,5 @@
 #include "socket.h"
+#include <netdb.h>
 
 /**
 * connect_to_server - Connect to the server using provided host and port
